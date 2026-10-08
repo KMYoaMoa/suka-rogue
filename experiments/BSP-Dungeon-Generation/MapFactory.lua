@@ -6,12 +6,26 @@ local Path = require "Path"
 -- holds the generated data and knows how to display it.
 local MapFactory = {}
 
+-- Safety cap: Cell:divide can report false even when more rooms are still
+-- possible (it descends into a random subtree), so a plain `while` could spin
+-- forever. Allow a generous number of attempts per requested room and bail out.
+local MAX_ATTEMPTS_PER_ROOM = 50
+
 local function divide(map)
     local room_cnt = 1
-    while room_cnt < map.num_rooms do
+    local attempts = 0
+    local max_attempts = map.num_rooms * MAX_ATTEMPTS_PER_ROOM
+    while room_cnt < map.num_rooms and attempts < max_attempts do
+        attempts = attempts + 1
         if map.root:divide(map.min_dimension) then
             room_cnt = room_cnt + 1
         end
+    end
+    if room_cnt < map.num_rooms then
+        print(string.format(
+            "MapFactory: created %d of %d requested rooms after %d attempts; stopping to avoid an infinite loop.",
+            room_cnt, map.num_rooms, attempts
+        ))
     end
 end
 
