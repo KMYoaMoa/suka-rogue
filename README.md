@@ -4,6 +4,21 @@
 
 本作将尝试在能力范围内尽可能还原原作中的设定。但出于改编需要，本作将不得不拓展延伸出一些不存在的设定，或者与采用原作设定存在一定出入的处理。
 
+## Implementation Plan
+
+Scheduled Oct. 2026
+
+- [ ] BSP Dungeon Generation
+    - Experiment done
+    - Integration: TODO
+- [ ] Biome System
+- [ ] Tile System
+- [ ] Message System
+- [ ] Construct Spawn System
+- [ ] Item Spawn System
+- [ ] Inventory System
+- [ ] Mob Spawn System
+
 ## Player and Race
 
 玩家将扮演“打捞者”，在“十三兽”和各类魔物出没的地下人类遗迹招募队伍、探索、战斗、逃脱危险的“梦境”。
