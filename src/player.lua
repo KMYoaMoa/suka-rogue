@@ -9,7 +9,11 @@ local conf = require "conf"
 -- Initialize player object
 --  config: global configuration project
 player.init = function ()
-    player.setPosition(4, 4)
+    local r = dungeon.rooms[1]
+    player.setPosition(
+        r.x_pos + math.floor(r.x_size / 2),
+        r.y_pos + math.floor(r.y_size / 2)
+    )
     player.armor = 100
     player.armor_max = 100
     player.health = 100
