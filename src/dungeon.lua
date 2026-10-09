@@ -1,3 +1,5 @@
+local MapFactory = require "map.MapFactory"
+
 -- Dungeon object
 local dungeon = {}
 
@@ -20,11 +22,30 @@ dungeon.init = function ()
         before = function (x) dungeon[x] = {} end,
         during = function (x, y) dungeon.setTile("#", x, y) end
     })
-    dungeon.iterate({ during = function (x, y)
-        if x > 2 and x < 8 and y > 2 and y < 8 then
-            dungeon[x][y] = "."
+
+    -- generate a BSP map
+    local map = MapFactory.create(conf.SIZE_X, conf.SIZE_Y, 3, 8)
+
+    -- carve rooms
+    for _, c in ipairs(map.cell_list) do
+        for x = c.x_pos, math.min(c:x_pos_end(), conf.SIZE_X - 1) do
+            for y = c.y_pos, math.min(c:y_pos_end(), conf.SIZE_Y - 1) do
+                dungeon.setTile(".", x, y)
+            end
         end
-    end })
+    end
+
+    -- carve corridors
+    for _, p in ipairs(map.path_list) do
+        for x = p.x_pos, math.min(p:x_pos_end(), conf.SIZE_X - 1) do
+            for y = p.y_pos, math.min(p:y_pos_end(), conf.SIZE_Y - 1) do
+                dungeon.setTile(".", x, y)
+            end
+        end
+    end
+
+    dungeon.rooms = map.cell_list
+    dungeon.paths = map.path_list
 end
 
 -- Set tile for specific position

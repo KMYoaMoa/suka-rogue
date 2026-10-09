@@ -8,16 +8,25 @@
 
 Scheduled Oct. 2026
 
-- [ ] BSP Dungeon Generation
-    - Experiment done
-    - Integration: TODO
-- [ ] Biome System
+- [x] BSP Dungeon Generation
+    - Experiment: DONE
+    - Integration: DONE
+- [ ] Biome/Room-Type System
 - [ ] Tile System
 - [ ] Message System
 - [ ] Construct Spawn System
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
+
+Experiments
+
+- [ ] Apply Cellular Automata After BSP
+
+Improvements
+
+- [ ] Improve Appearance for Dungeon
+- [ ] Improve UI Layout
 
 ## Player and Race
 

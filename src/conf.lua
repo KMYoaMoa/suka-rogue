@@ -1,8 +1,8 @@
 
 local conf = {}
 
-conf.SIZE_X = 10
-conf.SIZE_Y = 10
+conf.SIZE_X = 30
+conf.SIZE_Y = 15
 conf.TILE_SIZE = 32
 
 conf.is_pos_valid = function (x, y)
