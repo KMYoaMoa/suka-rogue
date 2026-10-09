@@ -9,10 +9,6 @@ game.init = function ()
     player.init()
 end
 
-game.camera = {}
-game.camera.x = 0
-game.camera.y = 0
-
 game.render = function ()
     for x = 0, conf.SIZE_X - 1, 1 do
 		for y = 0, conf.SIZE_Y - 1, 1 do
