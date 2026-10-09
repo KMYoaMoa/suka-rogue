@@ -1,25 +1,27 @@
 local conf = require "conf"
 local dungeon = require "dungeon"
 local player = require "player"
+local camera = require "camera"
 
 local game = {}
 
 game.init = function ()
     dungeon.init()
     player.init()
+   	camera.update(player.x, player.y)                     -- center on the player (per frame)
 end
 
 game.render = function ()
-    for x = 0, conf.SIZE_X - 1, 1 do
-		for y = 0, conf.SIZE_Y - 1, 1 do
-		    local transform = love.math.newTransform(x * conf.TILE_SIZE, y * conf.TILE_SIZE, 0, 2, 2, 0, 0)
-            if x == player.x and y == player.y then
+    for sx = 0, camera.width - 1, 1 do
+        for sy = 0, camera.height - 1, 1 do
+            local transform = love.math.newTransform(sx * conf.TILE_SIZE, sy * conf.TILE_SIZE, 0, 2, 2, 0, 0)
+            if camera.world_x(sx) == player.x and camera.world_y(sy) == player.y then
                 love.graphics.print("@", transform)
             else
-                love.graphics.print(dungeon[x][y], transform)
+                love.graphics.print(camera.tile_at(sx, sy, dungeon), transform)
             end
-		end
-	end
+        end
+    end
 	love.graphics.print("ARM:" .. player.armor, 0, 340)
 	love.graphics.print("HP:" .. player.health, 0, 360)
 	love.graphics.print("MP:" .. player.magic, 0, 380)
@@ -38,7 +40,10 @@ game.input.handle_move = function (key)
 	elseif key == "b" then dx = -1; dy = 1
 	elseif key == "n" then dx = 1; dy = 1
 	end
-	player.move(dx, dy)
+	if dx ~= 0 or dy ~= 0 then
+    	player.move(dx, dy)
+    	camera.update(player.x, player.y)                     -- center on the player (per frame)
+	end
 end
 
 return game

@@ -24,7 +24,7 @@ dungeon.init = function ()
     })
 
     -- generate a BSP map
-    local map = MapFactory.create(conf.SIZE_X, conf.SIZE_Y, 3, 8)
+    local map = MapFactory.create(conf.SIZE_X, conf.SIZE_Y, 3, 25)
 
     -- carve rooms
     for _, c in ipairs(map.cell_list) do
