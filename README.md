@@ -9,10 +9,16 @@
 Scheduled Oct. 2026
 
 - [x] BSP Dungeon Generation
-    - Experiment: DONE
-    - Integration: DONE
-- [ ] Biome/Room-Type System
+  - [x] Experiment
+  - [x] Integration
+- [x] Biome System
+  - [x] Make sure all rooms are connected
+  - [x] Biome Assignment
+- [ ] Camera and larger dungeon
+  - [ ] Camera Implementation
+  - [ ] Improve UI Layout
 - [ ] Tile System
+- [ ] Room Type
 - [ ] Message System
 - [ ] Construct Spawn System
 - [ ] Item Spawn System
@@ -26,8 +32,7 @@ Experiments
 Improvements
 
 - [ ] Improve Appearance for Dungeon
-- [ ] Improve UI Layout
-- [ ] Make sure all rooms are connected
+  - [ ] Fonts for ASCII Mode
 
 ## Player and Race
 
