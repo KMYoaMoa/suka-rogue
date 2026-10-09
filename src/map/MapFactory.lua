@@ -1,6 +1,7 @@
 local Cell = require "map.Cell"
 local Map = require "map.Map"
 local Path = require "map.Path"
+local Biome = require "map.Biome"
 
 -- MapFactory owns the dungeon generation logic. The Map table itself only
 -- holds the generated data and knows how to display it.
@@ -74,7 +75,11 @@ local function add_path(map)
             local overlap_end = math.min(i:y_pos_end(), j:y_pos_end())
             if overlap_start <= overlap_end then
                 local hall_y_pos = math.random(overlap_start, overlap_end)
-                map.path_list[#map.path_list+1] = Path:new(i:x_pos_end() + 1, hall_y_pos, j.x_pos - i:x_pos_end() - 1, 1)
+                local p = Path:new(i:x_pos_end() + 1, hall_y_pos, j.x_pos - i:x_pos_end() - 1, 1)
+                p.a, p.b = i, j
+                map.path_list[#map.path_list+1] = p
+                i.connected[#i.connected+1] = j
+                j.connected[#j.connected+1] = i
             end
 		end
 		for _, j in ipairs(i.v_neighbours) do
@@ -82,10 +87,52 @@ local function add_path(map)
     		local overlap_end = math.min(i:x_pos_end(), j:x_pos_end())
             if overlap_start <= overlap_end then
                 local hall_x_pos = math.random(overlap_start, overlap_end)
-                map.path_list[#map.path_list+1] = Path:new(hall_x_pos, i:y_pos_end() + 1, 1, j.y_pos - i:y_pos_end() - 1)
+                local p = Path:new(hall_x_pos, i:y_pos_end() + 1, 1, j.y_pos - i:y_pos_end() - 1)
+                p.a, p.b = i, j
+                map.path_list[#map.path_list+1] = p
+                i.connected[#i.connected+1] = j
+                j.connected[#j.connected+1] = i
             end
 		end
 	end
+end
+
+-- Return the cells of the largest connected component over `cell.connected`.
+-- Ties: first-found component wins (`>` = strictly bigger replaces).
+local function keep_largest_component(map)
+    local seen, best = {}, {}
+    for _, root in ipairs(map.cell_list) do
+        if not seen[root] then
+            local comp, stack = {}, { root }
+            seen[root] = true
+            while #stack > 0 do
+                local c = table.remove(stack)
+                comp[#comp + 1] = c
+                for _, n in ipairs(c.connected) do
+                    if not seen[n] then
+                        seen[n] = true
+                        stack[#stack + 1] = n
+                    end
+                end
+            end
+            if #comp > #best then best = comp end
+        end
+    end
+    map.cell_list = best
+end
+
+-- Drop corridors whose rooms were both removed by keep_largest_component,
+-- so dungeon.lua never carves floating stubs into solid wall.
+local function drop_stub_paths(map)
+    local keep = {}
+    for _, c in ipairs(map.cell_list) do keep[c] = true end
+    local kept_paths = {}
+    for _, p in ipairs(map.path_list) do
+        if keep[p.a] and keep[p.b] then
+            kept_paths[#kept_paths + 1] = p
+        end
+    end
+    map.path_list = kept_paths
 end
 
 -- Generate a dungeon map.
@@ -101,6 +148,9 @@ function MapFactory.create(map_x_size, map_y_size, min_dimension, num_rooms)
     find_neighbours(map)
     shrink(map)
     add_path(map)
+    keep_largest_component(map)
+    drop_stub_paths(map)
+    Biome:assign(map)
     return map
 end
 

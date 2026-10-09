@@ -1,5 +1,3 @@
-GRID_SIZE = 16
-
 -- cell class
 local Cell = {}
 
@@ -13,8 +11,11 @@ function Cell:new(xpos, ypos, xsize, ysize)
     new_obj.y_size = ysize
     new_obj.left_c = nil
     new_obj.right_c = nil
+    -- note: h/v neighbours does not guarantee that 2 rooms are eventually connected
     new_obj.h_neighbours = {}
     new_obj.v_neighbours = {}
+    -- rooms actually linked by a corridor (symmetric)
+    new_obj.connected    = {}
     return new_obj
 end
 

@@ -1,15 +1,6 @@
 -- map class
 local Map = {}
 
-function Map:display()
-    for _, i in ipairs(self.cell_list) do
-        i:display()
-    end
-    for _, i in ipairs(self.path_list) do
-        i:display()
-    end
-end
-
 function Map:new(rootcell, numrooms, mindimension)
     local new_obj = {}
     setmetatable(new_obj, self)

@@ -27,6 +27,7 @@ Improvements
 
 - [ ] Improve Appearance for Dungeon
 - [ ] Improve UI Layout
+- [ ] Make sure all rooms are connected
 
 ## Player and Race
 
