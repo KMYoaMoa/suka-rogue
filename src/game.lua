@@ -1,3 +1,4 @@
+local Tile = require "tile"
 local conf = require "conf"
 local dungeon = require "dungeon"
 local player = require "player"
@@ -18,7 +19,12 @@ game.render = function ()
             if camera.world_x(sx) == player.x and camera.world_y(sy) == player.y then
                 love.graphics.print("@", transform)
             else
-                love.graphics.print(camera.tile_at(sx, sy, dungeon), transform)
+                local tile = camera.tile_at(sx, sy, dungeon)
+                local def = tile.def
+                if tile.type == "floor" then def = Tile.floor_for_biome(tile.biome) end
+                if def.color then love.graphics.setColor(def.color[1], def.color[2], def.color[3]) end
+                love.graphics.print(def.glyph, transform)
+                love.graphics.setColor(1, 1, 1)
             end
         end
     end

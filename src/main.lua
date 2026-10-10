@@ -1,6 +1,7 @@
 local game = require "game"
 
 function love.load()
+    math.randomseed(os.time())
     love.window.setTitle("Love RL")
     love.window.setMode(1280, 720)
     love.keyboard.setKeyRepeat(true)

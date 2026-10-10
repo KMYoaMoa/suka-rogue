@@ -8,22 +8,18 @@
 
 Scheduled Oct. 2026
 
-- [x] BSP Dungeon Generation
-  - [x] Experiment
-  - [x] Integration
-- [x] Biome System
-  - [x] Make sure all rooms are connected
-  - [x] Biome Assignment
-- [ ] Camera and larger dungeon
-  - [ ] Camera Implementation
-  - [ ] Improve UI Layout
 - [ ] Tile System
-- [ ] Room Type
 - [ ] Message System
-- [ ] Construct Spawn System
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
+- [ ] Construct Spawn System
+- [ ] Room Type
+
+Queued
+
+- [ ] Save & Load
+- [ ] Refactor `game` and clean up
 
 Experiments
 
@@ -31,8 +27,16 @@ Experiments
 
 Improvements
 
-- [ ] Improve Appearance for Dungeon
+- [ ] Improve Appearance
   - [ ] Fonts for ASCII Mode
+  - [ ] Improve UI Layout
+  - [ ] Add Assets Mode
+
+Done
+
+- [x] BSP Dungeon Generation
+- [x] Biome System
+- [x] Camera and larger dungeon
 
 ## Player and Race
 
