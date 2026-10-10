@@ -1,4 +1,5 @@
 local Tile = require "tile"
+local Message = require "message"
 local conf = require "conf"
 local dungeon = require "dungeon"
 local player = require "player"
@@ -10,6 +11,8 @@ game.init = function ()
     dungeon.init()
     player.init()
    	camera.update(player.x, player.y)                     -- center on the player (per frame)
+    Message.clear()
+    Message.add("Welcome, salvors. You descend into the ruins.", "info")
 end
 
 game.render = function ()
@@ -30,7 +33,21 @@ game.render = function ()
     end
 	love.graphics.print("ARM:" .. player.armor, 0, 340)
 	love.graphics.print("HP:" .. player.health, 0, 360)
-	love.graphics.print("MP:" .. player.magic, 0, 380)
+    love.graphics.print("MP:" .. player.magic, 0, 380)
+    game.render_messages()
+end
+
+-- Draw the latest conf.MESSAGE_LINES messages, oldest at the top; newest at
+-- the bottom so the most recent line always sits in a stable position.
+game.render_messages = function ()
+    local lines = Message.recent(conf.MESSAGE_LINES)
+    for i, entry in ipairs(lines) do
+        local y = conf.MESSAGE_ORIGIN_Y + (i - 1) * conf.MESSAGE_LINE_HEIGHT
+        local c = Message.color_of(entry)
+        if c then love.graphics.setColor(c[1], c[2], c[3]) end
+        love.graphics.print(entry.text, conf.MESSAGE_ORIGIN_X, y)
+    end
+    love.graphics.setColor(1, 1, 1)   -- leave white for the next drawer
 end
 
 game.input = {}
