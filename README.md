@@ -8,8 +8,8 @@
 
 Scheduled Oct. 2026
 
-- [ ] Tile System
 - [ ] Message System
+- [ ] Command Pattern and Time System
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
@@ -20,6 +20,8 @@ Queued
 
 - [ ] Save & Load
 - [ ] Refactor `game` and clean up
+- [ ] Music/Audio System
+- [ ] More Organized UI System
 
 Experiments
 
@@ -37,6 +39,7 @@ Done
 - [x] BSP Dungeon Generation
 - [x] Biome System
 - [x] Camera and larger dungeon
+- [x] Tile System
 
 ## Player and Race
 
