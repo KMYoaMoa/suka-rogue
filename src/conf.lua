@@ -17,5 +17,7 @@ conf.MESSAGE_ORIGIN_X    = 0    -- screen px of the first (oldest visible) line
 conf.MESSAGE_ORIGIN_Y    = 400  -- below the HUD block (y 340/360/380)
 -- conf.MESSAGE_HISTORY_MAX = 500  -- optional cap; omit for unbounded history
 
+conf.INV_ORIGIN_X = 0        -- inventory list origin (screen px)
+conf.INV_ORIGIN_Y = 440      -- below the message block (y 400–500)
 
 return conf

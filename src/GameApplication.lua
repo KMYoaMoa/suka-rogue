@@ -1,3 +1,4 @@
+local InventoryService = require "services.InventoryService"
 local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
@@ -10,19 +11,67 @@ local GameApplication = {}
 GameApplication.init = function ()
     DungeonGenerate.create(20, 3)
     PlayerService.init()
+
+    -- generate demo items
+    local px, py = PlayerService.getPosition()
+    InventoryService.place_item("medkit", px, py)   -- two demo items
+    InventoryService.place_item("sword",  px + 1, py)
+
     MessageService.clear()
     MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
     GameState.state = "running"
     CommandService.process()                                   -- runs until "waiting"
 end
 
-GameApplication.handle_key_press = function(key)
+GameApplication.handle_key_press = function (key)
+    local action = InputHandler.handle_action(key)
+
     if GameState.state == "waiting" then
-        local dx, dy = InputHandler.handle_move(key)
-        PlayerService.move(dx, dy)
+        -- open the list (view-only: no tick spent)
+        if action == "inventory_toggle" then
+            GameState.state = "inventory"
+            GameState.selected_slot = nil
+            return
+        end
+
+        -- inventory closed: pickup, else movement
+        if action == "pickup" then
+            PlayerService.pickup()
+        else
+            local dx, dy = InputHandler.handle_move(key)
+            if dx == 0 and dy == 0 then return end
+            PlayerService.move(dx, dy)
+        end
         GameState.state = "running"
+        CommandService.process()
+        return
     end
-    CommandService.process()
+
+    if GameState.state == "inventory" then
+        -- view-only: close the list / select a slot (no tick spent)
+        if action == "inventory_toggle" then
+            GameState.state = "waiting"
+            GameState.selected_slot = nil
+            return
+        elseif action and action:match("^select") then
+            GameState.selected_slot = tonumber(action:sub(7))
+            return
+        end
+
+        -- e/u/d act on the selected slot; other keys ignored
+        if action == "equip" and GameState.selected_slot then
+            PlayerService.equip(GameState.selected_slot)
+        elseif action == "use" and GameState.selected_slot then
+            PlayerService.use(GameState.selected_slot)
+        elseif action == "drop" and GameState.selected_slot then
+            PlayerService.drop(GameState.selected_slot)
+        else
+            return     -- movement etc. does nothing while the list is open
+        end
+        GameState.state = "running"
+        CommandService.process()
+        return
+    end
 end
 
 return GameApplication

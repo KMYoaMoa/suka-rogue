@@ -3,6 +3,8 @@ local Player = require "models.Player"
 local DungeonService = require "services.DungeonService"
 local CommandService = require "services.CommandService"
 local CameraService = require "services.CameraService"
+local InventoryService = require "services.InventoryService"
+local InventoryCommands = InventoryService.commands
 local GameState = require "models.GameState"
 
 local PlayerService = {}
@@ -54,6 +56,11 @@ PlayerCommands.move = function (dx, dy)
         end
     }
 end
+
+PlayerService.pickup  = function () PlayerService.invoker.append_command(InventoryCommands.pickup()) end
+PlayerService.equip   = function (i) PlayerService.invoker.append_command(InventoryCommands.equip(i)) end
+PlayerService.use     = function (i) PlayerService.invoker.append_command(InventoryCommands.use(i)) end
+PlayerService.drop    = function (i) PlayerService.invoker.append_command(InventoryCommands.drop(i)) end
 
 -- Return the player object
 return PlayerService
