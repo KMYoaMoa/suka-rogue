@@ -1,5 +1,4 @@
 local game = require "game"
-local command = require "command"
 
 function love.load()
     math.randomseed(os.time())
@@ -14,9 +13,5 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if command.state == "waiting" then
-        game.input.handle_move(key)
-        command.state = "running"
-    end
-    command.process()
+    game.handle_key_press(key)
 end
