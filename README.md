@@ -8,8 +8,6 @@
 
 Scheduled Oct. 2026
 
-- [ ] Message System
-- [ ] Command Pattern and Time System
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
@@ -40,6 +38,9 @@ Done
 - [x] Biome System
 - [x] Camera and larger dungeon
 - [x] Tile System
+- [x] Message System
+- [x] Command Pattern
+- [x] Time/Tick System
 
 ## Player and Race
 

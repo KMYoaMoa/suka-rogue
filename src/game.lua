@@ -4,6 +4,7 @@ local conf = require "conf"
 local dungeon = require "dungeon"
 local player = require "player"
 local camera = require "camera"
+local Command = require "command"
 
 local game = {}
 
@@ -13,8 +14,14 @@ game.init = function ()
    	camera.update(player.x, player.y)                     -- center on the player (per frame)
     Message.clear()
     Message.add("Welcome, salvors. You descend into the ruins.", "info")
+    game.state = "running"
+    Command.process()                                   -- runs until "waiting"
 end
 
+
+-- Advance the clock, processing each tick's invoker list, until the
+-- PLAYER's invoker comes due -> state "waiting" (its command arrives from
+-- input later; see handle_move).
 game.render = function ()
     for sx = 0, camera.width - 1, 1 do
         for sy = 0, camera.height - 1, 1 do
@@ -65,7 +72,6 @@ game.input.handle_move = function (key)
 	end
 	if dx ~= 0 or dy ~= 0 then
     	player.move(dx, dy)
-    	camera.update(player.x, player.y)                     -- center on the player (per frame)
 	end
 end
 
