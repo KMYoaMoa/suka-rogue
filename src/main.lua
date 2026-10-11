@@ -2,6 +2,7 @@ local GameApplication = require "GameApplication"
 local CameraView = require "views.CameraView"
 local MessageView = require "views.MessageView"
 local PlayerStatusView = require "views.PlayerStatusView"
+local InventoryView    = require "views.InventoryView"
 
 function love.load()
     math.randomseed(os.time())
@@ -17,6 +18,7 @@ function love.draw()
     CameraView.render()
     MessageView.render()
     PlayerStatusView.render()
+    InventoryView.render()
 end
 
 function love.keypressed(key)

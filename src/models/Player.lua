@@ -8,5 +8,6 @@ Player.magic = 100
 Player.magic_max = 100
 
 Player.inventory = {}
+Player.equipped  = { weapon = nil, armor = nil }       -- the player HAS equipment
 
 return Player

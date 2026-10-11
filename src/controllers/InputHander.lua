@@ -1,7 +1,7 @@
 
-local input = {}
+local InputHandler = {}
 
-input.handle_move = function (key)
+InputHandler.handle_move = function (key)
     local dx = 0
 	local dy = 0
 	if key == "down" or key == "j" then dy = 1
@@ -16,4 +16,15 @@ input.handle_move = function (key)
 	return dx, dy
 end
 
-return input
+InputHandler.handle_action = function (key)
+    if key == "g" then return "pickup"
+    elseif key == "d" then return "drop"
+    elseif key == "i" then return "inventory_toggle"
+    elseif key == "e" then return "equip"
+    elseif key == "u" then return "use"
+    elseif key >= "1" and key <= "9" then return "select" .. key   -- slot 1..9
+    end
+    return nil
+end
+
+return InputHandler
