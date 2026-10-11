@@ -37,4 +37,22 @@ camera.tile_at = function (sx, sy, grid)
     end
 end
 
+camera.render = function (dungeon, player)
+    for sx = 0, camera.width - 1, 1 do
+        for sy = 0, camera.height - 1, 1 do
+            local transform = love.math.newTransform(sx * conf.TILE_SIZE, sy * conf.TILE_SIZE, 0, 2, 2, 0, 0)
+            if camera.world_x(sx) == player.x and camera.world_y(sy) == player.y then
+                love.graphics.print("@", transform)
+            else
+                local tile = camera.tile_at(sx, sy, dungeon)
+                local def = tile.def
+                if tile.type == "floor" then def = Tile.floor_for_biome(tile.biome) end
+                if def.color then love.graphics.setColor(def.color[1], def.color[2], def.color[3]) end
+                love.graphics.print(def.glyph, transform)
+                love.graphics.setColor(1, 1, 1)
+            end
+        end
+    end
+end
+
 return camera

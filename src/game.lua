@@ -1,9 +1,10 @@
-local Tile = require "tile"
 local Message = require "message"
-local conf = require "conf"
 local dungeon = require "dungeon"
 local player = require "player"
 local camera = require "camera"
+local Command = require "command"
+local input = require "input"
+local ui = require "ui"
 
 local game = {}
 
@@ -13,60 +14,22 @@ game.init = function ()
    	camera.update(player.x, player.y)                     -- center on the player (per frame)
     Message.clear()
     Message.add("Welcome, salvors. You descend into the ruins.", "info")
+    Command.state = "running"
+    Command.process()                                   -- runs until "waiting"
 end
 
 game.render = function ()
-    for sx = 0, camera.width - 1, 1 do
-        for sy = 0, camera.height - 1, 1 do
-            local transform = love.math.newTransform(sx * conf.TILE_SIZE, sy * conf.TILE_SIZE, 0, 2, 2, 0, 0)
-            if camera.world_x(sx) == player.x and camera.world_y(sy) == player.y then
-                love.graphics.print("@", transform)
-            else
-                local tile = camera.tile_at(sx, sy, dungeon)
-                local def = tile.def
-                if tile.type == "floor" then def = Tile.floor_for_biome(tile.biome) end
-                if def.color then love.graphics.setColor(def.color[1], def.color[2], def.color[3]) end
-                love.graphics.print(def.glyph, transform)
-                love.graphics.setColor(1, 1, 1)
-            end
-        end
-    end
-	love.graphics.print("ARM:" .. player.armor, 0, 340)
-	love.graphics.print("HP:" .. player.health, 0, 360)
-    love.graphics.print("MP:" .. player.magic, 0, 380)
-    game.render_messages()
+    camera.render(dungeon, player)
+    ui.render(player)
 end
 
--- Draw the latest conf.MESSAGE_LINES messages, oldest at the top; newest at
--- the bottom so the most recent line always sits in a stable position.
-game.render_messages = function ()
-    local lines = Message.recent(conf.MESSAGE_LINES)
-    for i, entry in ipairs(lines) do
-        local y = conf.MESSAGE_ORIGIN_Y + (i - 1) * conf.MESSAGE_LINE_HEIGHT
-        local c = Message.color_of(entry)
-        if c then love.graphics.setColor(c[1], c[2], c[3]) end
-        love.graphics.print(entry.text, conf.MESSAGE_ORIGIN_X, y)
+game.handle_key_press = function(key)
+    if Command.state == "waiting" then
+        local dx, dy = input.handle_move(key)
+        player.move(dx, dy)
+        Command.state = "running"
     end
-    love.graphics.setColor(1, 1, 1)   -- leave white for the next drawer
-end
-
-game.input = {}
-game.input.handle_move = function (key)
-    local dx = 0
-	local dy = 0
-	if key == "down" or key == "j" then dy = 1
-	elseif key == "up" or key == "k" then dy = -1
-	elseif key == "left" or key == "h" then dx = -1
-	elseif key == "right" or key == "l" then dx = 1
-	elseif key == "y" then dx = -1; dy = -1
-	elseif key == "u" then dx = 1; dy = -1
-	elseif key == "b" then dx = -1; dy = 1
-	elseif key == "n" then dx = 1; dy = 1
-	end
-	if dx ~= 0 or dy ~= 0 then
-    	player.move(dx, dy)
-    	camera.update(player.x, player.y)                     -- center on the player (per frame)
-	end
+    Command.process()
 end
 
 return game

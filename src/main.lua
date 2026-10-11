@@ -13,5 +13,5 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    game.input.handle_move(key)
+    game.handle_key_press(key)
 end
