@@ -38,6 +38,6 @@ Tile.color    = function (tile) return Tile.def_of(tile).color end
 
 -- Biome-aware appearance hook (see §3.4). `biome` may be nil (corridors).
 -- Today biomes do not change the look; this is where they will.
-Tile.floor_for_biome = function (biome) return defs.floor end   -- placeholder
+Tile.floor = function () return defs.floor end   -- placeholder
 
 return Tile

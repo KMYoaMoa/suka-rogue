@@ -33,7 +33,7 @@ end
 
 DungeonService.getTile = function (x, y)
     if conf.is_pos_valid(x, y) then return Dungeon[x][y] end
-    return nil
+    return Tile.new("void")
 end
 
 DungeonService.getSpawnRoom = function ()

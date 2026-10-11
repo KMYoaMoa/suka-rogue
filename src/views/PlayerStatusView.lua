@@ -1,5 +1,5 @@
 local PlayerStatusView = {}
-local Player = require "models.player.Player"
+local Player = require "models.Player"
 
 PlayerStatusView.render = function ()
     love.graphics.print("ARM:" .. Player.armor, 0, 340)

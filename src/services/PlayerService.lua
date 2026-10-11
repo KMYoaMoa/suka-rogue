@@ -1,5 +1,5 @@
 local conf = require "conf"
-local Player = require "models.player.Player"
+local Player = require "models.Player"
 local DungeonService = require "services.DungeonService"
 local CommandService = require "services.CommandService"
 local CameraService = require "services.CameraService"
@@ -28,6 +28,10 @@ end
 PlayerService.setPosition = function (x, y)
     Player.x = x
     Player.y = y
+end
+
+PlayerService.getPosition = function ()
+    return Player.x, Player.y
 end
 
 -- Move player by change of position

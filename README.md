@@ -8,7 +8,7 @@
 
 Scheduled Oct. 2026
 
-- [ ] MVC Refactor and Clean Up
+- [x] MVC Refactor and Clean Up
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
