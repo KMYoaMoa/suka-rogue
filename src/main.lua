@@ -1,17 +1,24 @@
-local game = require "game"
+local GameApplication = require "GameApplication"
+local CameraView = require "views.CameraView"
+local MessageView = require "views.MessageView"
+local PlayerStatusView = require "views.PlayerStatusView"
 
 function love.load()
     math.randomseed(os.time())
+
     love.window.setTitle("Love RL")
     love.window.setMode(1280, 720)
     love.keyboard.setKeyRepeat(true)
-    game.init()
+
+    GameApplication.init()
 end
 
 function love.draw()
-    game.render()
+    CameraView.render()
+    MessageView.render()
+    PlayerStatusView.render()
 end
 
 function love.keypressed(key)
-    game.handle_key_press(key)
+    GameApplication.handle_key_press(key)
 end

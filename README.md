@@ -8,6 +8,7 @@
 
 Scheduled Oct. 2026
 
+- [ ] MVC Refactor and Clean Up
 - [ ] Item Spawn System
 - [ ] Inventory System
 - [ ] Mob Spawn System
@@ -17,7 +18,6 @@ Scheduled Oct. 2026
 Queued
 
 - [ ] Save & Load
-- [ ] Refactor `game` and clean up
 - [ ] Music/Audio System
 - [ ] More Organized UI System
 

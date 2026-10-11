@@ -1,11 +1,15 @@
-local Cell = require "map.Cell"
-local Map = require "map.Map"
-local Path = require "map.Path"
-local Biome = require "map.Biome"
+local Cell = require "models.dungeon.Cell"
+local Map = require "models.dungeon.Map"
+local Path = require "models.dungeon.Path"
+local Biome = require "models.dungeon.Biome"
+local Dungeon = require "models.dungeon.Dungeon"
+local DungeonService = require "services.DungeonService"
+local Tile = require "models.dungeon.Tile"
+local conf = require "conf"
 
 -- MapFactory owns the dungeon generation logic. The Map table itself only
 -- holds the generated data and knows how to display it.
-local MapFactory = {}
+local DungeonFactory = {}
 
 -- Safety cap: Cell:divide can report false even when more rooms are still
 -- possible (it descends into a random subtree), so a plain `while` could spin
@@ -135,13 +139,53 @@ local function drop_stub_paths(map)
     map.path_list = kept_paths
 end
 
+local function rasterize(map)
+    -- carve rooms
+    for _, c in ipairs(map.cell_list) do
+        for x = c.x_pos, math.min(c:x_pos_end(), conf.SIZE_X - 1) do
+            for y = c.y_pos, math.min(c:y_pos_end(), conf.SIZE_Y - 1) do
+                local t = Tile.new("floor")
+                t.biome = c.biome
+                DungeonService.setTile(t, x, y)
+            end
+        end
+    end
+end
+
+local function carve(map)
+    -- carve corridors
+    for _, p in ipairs(map.path_list) do
+        for x = p.x_pos, math.min(p:x_pos_end(), conf.SIZE_X - 1) do
+            for y = p.y_pos, math.min(p:y_pos_end(), conf.SIZE_Y - 1) do
+                local t = Tile.new("floor")
+                DungeonService.setTile(t, x, y)
+            end
+        end
+    end
+
+    -- set walls
+    DungeonService.iterate({
+        during = function (x, y)
+            if DungeonService.getTile(x, y).type == "void" then
+                if DungeonService.has_floor_around(x, y) then
+                    local t = Tile.new("wall")
+                    DungeonService.setTile(t, x, y)
+                end
+            end
+        end
+    })
+
+    Dungeon.rooms = map.cell_list
+    Dungeon.paths = map.path_list
+end
+
 -- Generate a dungeon map.
 --   map_x_size:      expected map width in cells
 --   map_y_size:      expected map height in cells
 --   min_dimension:   minimal cell/room dimension
 --   num_rooms:       number of rooms/cells to partition into
-function MapFactory.create(map_x_size, map_y_size, min_dimension, num_rooms)
-    local root = Cell:new(1, 1, map_x_size, map_y_size)
+function DungeonFactory.create(num_rooms, min_dimension)
+    local root = Cell:new(1, 1, conf.SIZE_X, conf.SIZE_Y)
     local map = Map:new(root, num_rooms, min_dimension)
     divide(map)
     construct_list(map)
@@ -151,7 +195,10 @@ function MapFactory.create(map_x_size, map_y_size, min_dimension, num_rooms)
     keep_largest_component(map)
     drop_stub_paths(map)
     Biome:assign(map)
+    DungeonService.clear()
+    rasterize(map)
+    carve(map)
     return map
 end
 
-return MapFactory
+return DungeonFactory
