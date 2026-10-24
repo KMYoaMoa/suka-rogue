@@ -3,7 +3,9 @@ local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
 local InputHandler = require "controllers.InputHander"
+local Dungeon = require "models.dungeon.Dungeon"
 local DungeonGenerate = require "services.DungeonGenerate"
+local MobService = require "services.MobService"
 local GameState       = require "models.GameState"
 
 local GameApplication = {}
@@ -16,6 +18,14 @@ GameApplication.init = function ()
     local px, py = PlayerService.getPosition()
     InventoryService.place_item("medkit", px, py)   -- two demo items
     InventoryService.place_item("sword",  px + 1, py)
+
+    local room = Dungeon.rooms[2]
+    if room then
+        local mx = room.x_pos + math.floor(room.x_size / 2)
+        local my = room.y_pos + math.floor(room.y_size / 2)
+        MobService.spawn("rat", mx, my)
+        MobService.spawn("scavenger", mx + 1, my)
+    end
 
     MessageService.clear()
     MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
