@@ -55,4 +55,22 @@ end
 
 DungeonService.is_passable = function (x, y) return Tile.passable(Dungeon[x][y]) end
 
+-- The first live occupant standing on (x, y), or nil. Any entry in
+-- Dungeon.mobs satisfies the contract { x, y, dead, name }.
+DungeonService.occupant_at = function (x, y)
+    for _, actor in ipairs(Dungeon.mobs) do
+        if not actor.dead and actor.x == x and actor.y == y then
+            return actor
+        end
+    end
+    return nil
+end
+
+-- A tile a creature may enter: in bounds, passable terrain, unoccupied.
+DungeonService.is_free = function (x, y)
+    return conf.is_pos_valid(x, y)
+       and DungeonService.is_passable(x, y)
+       and DungeonService.occupant_at(x, y) == nil
+end
+
 return DungeonService
