@@ -8,12 +8,13 @@
 
 Scheduled Oct. 2026
 
-- [x] MVC Refactor and Clean Up
-- [ ] Item Spawn System
-- [ ] Inventory System
 - [ ] Mob Spawn System
-- [ ] Construct Spawn System
+- [ ] Construct and NPC Spawn System
 - [ ] Room Type
+- [ ] Integration of Mobs, Items, Constructs and Room Type
+- [ ] Basic Combat System
+- [ ] Mob AI
+- [ ] Brightness and Player View System
 
 Queued
 
@@ -41,6 +42,9 @@ Done
 - [x] Message System
 - [x] Command Pattern
 - [x] Time/Tick System
+- [x] MVC Refactor and Clean Up
+- [x] Item Spawn System
+- [x] Inventory System
 
 ## Player and Race
 
