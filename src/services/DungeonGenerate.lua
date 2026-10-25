@@ -2,6 +2,7 @@ local Cell = require "models.dungeon.Cell"
 local Map = require "models.dungeon.Map"
 local Path = require "models.dungeon.Path"
 local Biome = require "models.dungeon.Biome"
+local RoomType = require "models.dungeon.RoomType"
 local Dungeon = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local Tile = require "models.dungeon.Tile"
@@ -195,6 +196,7 @@ function DungeonFactory.create(num_rooms, min_dimension)
     keep_largest_component(map)
     drop_stub_paths(map)
     Biome:assign(map)
+    RoomType.assign(map)
     DungeonService.clear()
     rasterize(map)
     carve(map)
