@@ -1,5 +1,6 @@
 local conf = require "conf"
 local Player = require "models.Player"
+local MessageService = require "services.MessageService"
 local DungeonService = require "services.DungeonService"
 local CommandService = require "services.CommandService"
 local CameraService = require "services.CameraService"
@@ -45,16 +46,20 @@ end
 
 PlayerCommands.move = function (dx, dy)
     return { execute = function ()
-            local new_x = Player.x + dx
-           	local new_y = Player.y + dy
-            local valid_move = conf.is_pos_valid(new_x, new_y) and DungeonService.is_passable(new_x, new_y)
-        	if valid_move then
-        		Player.x = new_x
-        		Player.y = new_y
-        	end
-        	CameraService.update(Player.x, Player.y)
+        local new_x = Player.x + dx
+        local new_y = Player.y + dy
+        if DungeonService.is_free(new_x, new_y) then
+            Player.x, Player.y = new_x, new_y
+        else
+            local occupant = DungeonService.occupant_at(new_x, new_y)
+            if occupant then
+                MessageService.add(
+                    string.format("The %s blocks your way.", occupant.name),
+                    "warning")
+            end
         end
-    }
+        CameraService.update(Player.x, Player.y)
+    end }
 end
 
 PlayerService.pickup  = function () PlayerService.invoker.append_command(InventoryCommands.pickup()) end
