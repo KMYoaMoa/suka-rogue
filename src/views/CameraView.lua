@@ -17,14 +17,15 @@ CameraView.render = function ()
             local transform = love.math.newTransform(sx * conf.TILE_SIZE, sy * conf.TILE_SIZE, 0, 2, 2, 0, 0)
             local wx = CameraService.world_x(sx)
             local wy = CameraService.world_y(sy)
-            local mob = DungeonService.occupant_at(wx, wy)
+            local occupant = DungeonService.occupant_at(wx, wy)
             if wx == player_x and wy == player_y then
                 love.graphics.print("@", transform)
-            elseif mob then
-                local c = Mob.color(mob)
-                if c then love.graphics.setColor(c[1], c[2], c[3]) end
-                love.graphics.print(Mob.glyph(mob), transform)
-                love.graphics.setColor(1, 1, 1)          -- never leak colour (item bug lesson)
+            elseif occupant then
+                if occupant.color then
+                    love.graphics.setColor(occupant.color[1], occupant.color[2], occupant.color[3])
+                end
+                love.graphics.print(occupant.glyph, transform)
+                love.graphics.setColor(1, 1, 1)          -- never leak colour
             else
                 local flag = false
                 for _, g in ipairs(Dungeon.items) do
