@@ -53,6 +53,27 @@ DungeonService.has_floor_around = function(x, y)
     return false
 end
 
+-- An adjacent floor tile, preferring one inside a room (non-nil biome).
+-- Used to give walls their room palette/darkness; corridor-only walls fall
+-- back to a corridor floor (default palette / corridor darkness).
+DungeonService.floor_around = function (x, y)
+    local dx_list = {-1, 0, 1, -1, 1, -1, 0, 1}
+    local dy_list = {-1, -1, -1, 0, 0, 1, 1, 1}
+    local fallback
+    for i = 1, 8, 1 do
+        local nx = x + dx_list[i]
+        local ny = y + dy_list[i]
+        if conf.is_pos_valid(nx, ny) then
+            local t = Dungeon[nx][ny]
+            if t.type == "floor" then
+                if t.biome then return t end   -- prefer a room floor
+                fallback = fallback or t       -- corridor floor
+            end
+        end
+    end
+    return fallback
+end
+
 DungeonService.is_passable = function (x, y) return Tile.passable(Dungeon[x][y]) end
 
 -- The room whose bounds contain (x, y), or nil (corridors are not rooms).
