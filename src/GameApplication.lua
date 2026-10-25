@@ -7,9 +7,17 @@ local Dungeon = require "models.dungeon.Dungeon"
 local DungeonGenerate = require "services.DungeonGenerate"
 local RoomService = require "services.RoomService"
 local MobService = require "services.MobService"
+local VisionService = require "services.VisionService"
 local GameState       = require "models.GameState"
 
 local GameApplication = {}
+
+-- Settle one turn, then refresh what the player can see.
+local function run_turn()
+    GameState.state = "running"
+    CommandService.process()                                   -- runs until "waiting"
+    VisionService.update()
+end
 
 GameApplication.init = function ()
     DungeonGenerate.create(20, 3)
@@ -18,8 +26,7 @@ GameApplication.init = function ()
 
     MessageService.clear()
     MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
-    GameState.state = "running"
-    CommandService.process()                                   -- runs until "waiting"
+    run_turn()
 end
 
 GameApplication.handle_key_press = function (key)
@@ -41,8 +48,7 @@ GameApplication.handle_key_press = function (key)
             if dx == 0 and dy == 0 then return end
             PlayerService.move(dx, dy)
         end
-        GameState.state = "running"
-        CommandService.process()
+        run_turn()
         return
     end
 
@@ -67,8 +73,7 @@ GameApplication.handle_key_press = function (key)
         else
             return     -- movement etc. does nothing while the list is open
         end
-        GameState.state = "running"
-        CommandService.process()
+        run_turn()
         return
     end
 end

@@ -1,7 +1,8 @@
 
+local Palette = require "models.dungeon.Palette"
+
 local Biome = {}
 
-local BIOME_TYPES    = { "BiomeA", "BiomeB", "BiomeC", "BiomeD", "BiomeE" }
 local MIN_BIOME_SIZE = 1
 local MAX_BIOME_SIZE = 3
 
@@ -23,7 +24,7 @@ function Biome:assign(map)
     for _, seed in ipairs(active) do
         if not assigned[seed] then
             biome_idx = biome_idx + 1
-            local type = BIOME_TYPES[((biome_idx - 1) % #BIOME_TYPES) + 1]
+            local type = Palette.ORDER[((biome_idx - 1) % #Palette.ORDER) + 1]
 
             local cluster = { seed }
             assigned[seed] = true

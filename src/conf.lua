@@ -20,4 +20,10 @@ conf.MESSAGE_ORIGIN_Y    = 400  -- below the HUD block (y 340/360/380)
 conf.INV_ORIGIN_X = 0        -- inventory list origin (screen px)
 conf.INV_ORIGIN_Y = 440      -- below the message block (y 400–500)
 
+conf.VISION_START      = 12   -- starting vision value on the player's tile
+conf.DARKNESS_MIN      = 1    -- per-room darkness range; lower = farther vision
+conf.DARKNESS_MAX      = 3
+conf.CORRIDOR_DARKNESS = 2    -- corridors are not rooms; fixed default
+conf.EXPLORED_DIM      = 0.30 -- brightness multiplier for discovered tiles
+
 return conf

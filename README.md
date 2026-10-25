@@ -8,9 +8,7 @@
 
 Scheduled Oct. 2026
 
-- [ ] Construct and NPC Spawn System
-- [ ] Integration of Mobs, Items, Constructs and Room Type
-- [ ] Brightness and Player View System
+- [ ] Color, Brightness and Player View System
 - [ ] Basic Combat System
 - [ ] Mob AI
 
@@ -45,6 +43,8 @@ Done
 - [x] Inventory System
 - [x] Mob Spawn System
 - [x] Room Type
+- [x] Construct and NPC Spawn System
+- [x] Integration of Mobs, Items, Constructs and Room Type
 
 ## Player and Race
 

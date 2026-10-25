@@ -147,6 +147,7 @@ local function rasterize(map)
             for y = c.y_pos, math.min(c:y_pos_end(), conf.SIZE_Y - 1) do
                 local t = Tile.new("floor")
                 t.biome = c.biome
+                t.darkness = c.darkness
                 DungeonService.setTile(t, x, y)
             end
         end
@@ -159,6 +160,7 @@ local function carve(map)
         for x = p.x_pos, math.min(p:x_pos_end(), conf.SIZE_X - 1) do
             for y = p.y_pos, math.min(p:y_pos_end(), conf.SIZE_Y - 1) do
                 local t = Tile.new("floor")
+                t.darkness = conf.CORRIDOR_DARKNESS
                 DungeonService.setTile(t, x, y)
             end
         end
@@ -169,7 +171,10 @@ local function carve(map)
         during = function (x, y)
             if DungeonService.getTile(x, y).type == "void" then
                 if DungeonService.has_floor_around(x, y) then
+                    local floor = DungeonService.floor_around(x, y)
                     local t = Tile.new("wall")
+                    t.biome = floor and floor.biome or nil
+                    t.darkness = floor and floor.darkness or conf.CORRIDOR_DARKNESS
                     DungeonService.setTile(t, x, y)
                 end
             end
@@ -178,6 +183,18 @@ local function carve(map)
 
     Dungeon.rooms = map.cell_list
     Dungeon.paths = map.path_list
+end
+
+-- Per-room base darkness: lower = brighter = farther vision.
+-- Shops are deliberately fully lit (darkness 0 -> no vision decay).
+local function assign_darkness(map)
+    for _, room in ipairs(map.cell_list) do
+        if room.room_type == "shop" then
+            room.darkness = 0
+        else
+            room.darkness = math.random(conf.DARKNESS_MIN, conf.DARKNESS_MAX)
+        end
+    end
 end
 
 -- Generate a dungeon map.
@@ -197,6 +214,7 @@ function DungeonFactory.create(num_rooms, min_dimension)
     drop_stub_paths(map)
     Biome:assign(map)
     RoomType.assign(map)
+    assign_darkness(map)
     DungeonService.clear()
     rasterize(map)
     carve(map)
