@@ -8,9 +8,8 @@
 
 Scheduled Oct. 2026
 
-- [ ] Mob Spawn System
-- [ ] Construct and NPC Spawn System
 - [ ] Room Type
+- [ ] Construct and NPC Spawn System
 - [ ] Integration of Mobs, Items, Constructs and Room Type
 - [ ] Basic Combat System
 - [ ] Mob AI
@@ -45,6 +44,7 @@ Done
 - [x] MVC Refactor and Clean Up
 - [x] Item Spawn System
 - [x] Inventory System
+- [x] Mob Spawn System
 
 ## Player and Race
 
