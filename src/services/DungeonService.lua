@@ -55,15 +55,62 @@ end
 
 DungeonService.is_passable = function (x, y) return Tile.passable(Dungeon[x][y]) end
 
--- The first live occupant standing on (x, y), or nil. Any entry in
--- Dungeon.mobs satisfies the contract { x, y, dead, name }.
-DungeonService.occupant_at = function (x, y)
-    for _, actor in ipairs(Dungeon.mobs) do
+-- The room whose bounds contain (x, y), or nil (corridors are not rooms).
+DungeonService.room_at = function (x, y)
+    for _, room in ipairs(Dungeon.rooms) do
+        if x >= room.x_pos and x <= room:x_pos_end()
+           and y >= room.y_pos and y <= room:y_pos_end() then
+            return room
+        end
+    end
+    return nil
+end
+
+-- Entrances are orthogonal: a corridor always meets a room edge head-on.
+local NEIGHBOURS4 = {
+    {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+}
+
+-- True for a passable room tile that touches a passable tile outside its
+-- room (a corridor): i.e. an entrance/exit. Immovable blockers must not be
+-- placed here or they can seal the opening.
+DungeonService.is_entrance = function (x, y)
+    if not conf.is_pos_valid(x, y)
+       or not DungeonService.is_passable(x, y) then
+        return false
+    end
+    local room = DungeonService.room_at(x, y)
+    if not room then return false end
+    for _, d in ipairs(NEIGHBOURS4) do
+        local nx, ny = x + d[1], y + d[2]
+        if conf.is_pos_valid(nx, ny)
+           and DungeonService.is_passable(nx, ny)
+           and not (nx >= room.x_pos and nx <= room:x_pos_end()
+                    and ny >= room.y_pos and ny <= room:y_pos_end()) then
+            return true
+        end
+    end
+    return false
+end
+
+-- One scan helper; avoids a list-of-lists allocation per call
+-- (CameraView calls this per visible tile per frame).
+local function scan(list, x, y)
+    for _, actor in ipairs(list) do
         if not actor.dead and actor.x == x and actor.y == y then
             return actor
         end
     end
     return nil
+end
+
+-- The first live occupant standing on (x, y), or nil.
+-- Occupant contract: x, y, name, glyph, color, and optional `dead`.
+-- Mobs, NPCs and constructs all block; items do not (they render separately).
+DungeonService.occupant_at = function (x, y)
+    return scan(Dungeon.mobs, x, y)
+        or scan(Dungeon.npcs, x, y)
+        or scan(Dungeon.constructs, x, y)
 end
 
 -- A tile a creature may enter: in bounds, passable terrain, unoccupied.

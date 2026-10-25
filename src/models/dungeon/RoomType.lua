@@ -14,16 +14,22 @@ local defs = {
         name = "Shop", weight = 1,
         items = 0, item_pool = {},
         mobs  = 0, mob_pool  = {},
+        npcs  = 1, npc_pool  = { "shopkeeper" },
+        constructs = 1, construct_pool = { "shelf" },
     },
     storeroom = {
         name = "Storeroom", weight = 1,
         items = 2, item_pool = { "medkit", "sword", "plate", "coin" },
         mobs  = 0, mob_pool  = {},
+        npcs  = 0, npc_pool  = {},
+        constructs = 0, construct_pool = {},
     },
     ruins = {
         name = "Ruins", weight = 8,
         items = 0, item_pool = {},
         mobs  = 2, mob_pool  = { "rat", "bat", "scavenger" },
+        npcs  = 0, npc_pool  = {},
+        constructs = 1, construct_pool = { "chest" },
     },
 }
 
