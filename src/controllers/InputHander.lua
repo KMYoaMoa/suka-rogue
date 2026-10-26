@@ -22,6 +22,10 @@ InputHandler.handle_action = function (key)
     elseif key == "i" then return "inventory_toggle"
     elseif key == "e" then return "equip"
     elseif key == "u" then return "use"
+    elseif key == "z" then return "melee_mode"
+    elseif key == "x" then return "ranged_mode"
+    elseif key == "c" then return "unarmed_mode"
+    elseif key == "q" then return "attack"
     elseif key >= "1" and key <= "9" then return "select" .. key   -- slot 1..9
     end
     return nil

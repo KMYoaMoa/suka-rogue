@@ -6,6 +6,7 @@ local CommandService = require "services.CommandService"
 local CameraService = require "services.CameraService"
 local InventoryService = require "services.InventoryService"
 local InventoryCommands = InventoryService.commands
+local CombatService = require "services.CombatService"
 local GameState = require "models.GameState"
 
 local PlayerService = {}
@@ -66,6 +67,42 @@ PlayerService.pickup  = function () PlayerService.invoker.append_command(Invento
 PlayerService.equip   = function (i) PlayerService.invoker.append_command(InventoryCommands.equip(i)) end
 PlayerService.use     = function (i) PlayerService.invoker.append_command(InventoryCommands.use(i)) end
 PlayerService.drop    = function (i) PlayerService.invoker.append_command(InventoryCommands.drop(i)) end
+
+-- Switch combat mode. Returns true if a tick-consuming command was enqueued.
+PlayerService.switch_mode = function (mode)
+    if mode ~= "unarmed" then
+        local slot = (mode == "melee") and "melee"
+                  or (mode == "ranged") and "ranged"
+        if not (slot and Player.equipped[slot]) then
+            MessageService.add(string.format("You have no %s weapon.", mode), "warning")
+            return false
+        end
+    end
+    if Player.mode == mode then return false end
+
+    if mode == "unarmed" then
+        Player.mode = "unarmed"                       -- no tick
+        CombatService.update_targets()                -- refresh highlight immediately
+        return false
+    end
+
+    PlayerService.invoker.append_command(CombatService.commands.switch_mode(mode))
+    return true
+end
+
+-- Attack with the current mode. Returns true if a tick-consuming attack was enqueued.
+PlayerService.attack = function ()
+    CombatService.update_targets()                    -- ensure freshness
+    if #CombatService.targets == 0 then
+        local text = (Player.mode == "ranged")
+            and "There is no target in sight."
+            or "There is no target in range."
+        MessageService.add(text, "info")
+        return false                                  -- no tick
+    end
+    PlayerService.invoker.append_command(CombatService.commands.attack())
+    return true
+end
 
 -- Return the player object
 return PlayerService

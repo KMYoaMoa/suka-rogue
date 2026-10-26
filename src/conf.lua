@@ -26,4 +26,6 @@ conf.DARKNESS_MAX      = 3
 conf.CORRIDOR_DARKNESS = 2    -- corridors are not rooms; fixed default
 conf.EXPLORED_DIM      = 0.30 -- brightness multiplier for discovered tiles
 
+conf.TARGET_HIGHLIGHT  = {0.15, 0.15, 0.15}  -- target-tile background (slightly above black)
+
 return conf

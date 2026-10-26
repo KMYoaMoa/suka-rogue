@@ -1,22 +1,21 @@
-local InventoryService = require "services.InventoryService"
 local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
 local InputHandler = require "controllers.InputHander"
-local Dungeon = require "models.dungeon.Dungeon"
 local DungeonGenerate = require "services.DungeonGenerate"
 local RoomService = require "services.RoomService"
-local MobService = require "services.MobService"
 local VisionService = require "services.VisionService"
+local CombatService = require "services.CombatService"
 local GameState       = require "models.GameState"
 
 local GameApplication = {}
 
--- Settle one turn, then refresh what the player can see.
+-- Settle one turn, then refresh what the player can see and target.
 local function run_turn()
     GameState.state = "running"
     CommandService.process()                                   -- runs until "waiting"
     VisionService.update()
+    CombatService.update_targets()
 end
 
 GameApplication.init = function ()
@@ -37,6 +36,21 @@ GameApplication.handle_key_press = function (key)
         if action == "inventory_toggle" then
             GameState.state = "inventory"
             GameState.selected_slot = nil
+            return
+        end
+
+        -- combat mode switching / attack
+        if action == "melee_mode" then
+            if PlayerService.switch_mode("melee") then run_turn() end
+            return
+        elseif action == "ranged_mode" then
+            if PlayerService.switch_mode("ranged") then run_turn() end
+            return
+        elseif action == "unarmed_mode" then
+            PlayerService.switch_mode("unarmed")            -- no tick
+            return
+        elseif action == "attack" then
+            if PlayerService.attack() then run_turn() end    -- no target -> no tick
             return
         end
 
