@@ -8,7 +8,6 @@
 
 Scheduled Oct. 2026
 
-- [ ] Mob AI
 - [ ] More Organized UI System
 - [ ] Improve Appearance
   - [ ] Fonts for ASCII Mode
@@ -46,6 +45,7 @@ Done
 - [x] Integration of Mobs, Items, Constructs and Room Type
 - [x] Color, Brightness and Player View System
 - [x] Basic Combat System
+- [x] Mob AI
 
 ## Player and Race
 
