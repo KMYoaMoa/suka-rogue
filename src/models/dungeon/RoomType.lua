@@ -19,7 +19,7 @@ local defs = {
     },
     storeroom = {
         name = "Storeroom", weight = 1,
-        items = 2, item_pool = { "medkit", "sword", "plate", "coin" },
+        items = 2, item_pool = { "medkit", "sword", "plate", "coin", "pistol" },
         mobs  = 0, mob_pool  = {},
         npcs  = 0, npc_pool  = {},
         constructs = 0, construct_pool = {},

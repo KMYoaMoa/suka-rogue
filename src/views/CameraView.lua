@@ -4,6 +4,7 @@ local Dungeon        = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local Palette        = require "models.dungeon.Palette"
 local VisionService  = require "services.VisionService"
+local CombatService  = require "services.CombatService"
 local Item           = require "models.item.Item"
 local conf           = require "conf"
 
@@ -24,6 +25,17 @@ CameraView.render = function ()
             local wy = CameraService.world_y(sy)
             local tile  = CameraService.tile_at(sx, sy)
             local state = VisionService.state_of(tile)
+
+            -- Attack targets: a dark-gray background under the tile glyph.
+            if state == "visible" and CombatService.is_target(wx, wy) then
+                love.graphics.setColor(conf.TARGET_HIGHLIGHT[1],
+                                       conf.TARGET_HIGHLIGHT[2],
+                                       conf.TARGET_HIGHLIGHT[3])
+                love.graphics.rectangle("fill",
+                    sx * conf.TILE_SIZE, sy * conf.TILE_SIZE,
+                    conf.TILE_SIZE, conf.TILE_SIZE)
+                love.graphics.setColor(1, 1, 1)
+            end
 
             if wx == player_x and wy == player_y then
                 love.graphics.print("@", transform)          -- always visible

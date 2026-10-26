@@ -75,7 +75,7 @@ InventoryCommands.equip = function (slot_index)
             MessageService.add("You can't equip that.", "warning")
             return
         end
-        local slot = Item.def_of(item).kind               -- "weapon" | "armor"
+        local slot = Item.def_of(item).kind               -- "melee" | "ranged" | "armor"
         local old = Player.equipped[slot]
         Player.equipped[slot] = item                      -- swap out
         table.remove(Player.inventory, slot_index)

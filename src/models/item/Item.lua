@@ -4,15 +4,19 @@
 local Item = {}
 
 -- Shared per-type definitions. Keyed by type name.
---   kind:  "weapon" | "base" | "armor"  (determines behavior table + slot)
---   tags:  capability flags for queries ("equippable", "usable", "stackable", ...)
---   stats: gameplay numbers; slot-specific (damage / defense / heal / value)
+--   kind:  "melee" | "ranged" | "base" | "armor" (determines behavior table + slot)
+--   tags:  capability flags for queries ("equippable", "weapon", "usable", "stackable", ...)
+--   stats: gameplay numbers; slot-specific (damage/range/accuracy/defense/heal/value)
 --   glyph, color: drawn on the ground / in the list
 local defs = {
-    sword   = { name = "Rusty Sword",  kind = "weapon",
+    sword   = { name = "Rusty Sword",  kind = "melee",
                 glyph = "/", color = {0.85, 0.85, 0.85},
-                tags = { "equippable" },
-                stats = { damage = 12 } },
+                tags = { "equippable", "weapon" },
+                stats = { damage = 12, range = 1 } },
+    pistol  = { name = "Pistol",       kind = "ranged",
+                glyph = ")", color = {0.80, 0.80, 0.88},
+                tags = { "equippable", "weapon" },
+                stats = { damage = 6, accuracy = 0.75 } },
     plate   = { name = "Iron Plate",   kind = "armor",
                 glyph = "]", color = {0.55, 0.60, 0.70},
                 tags = { "equippable" },
@@ -53,9 +57,13 @@ Item.color  = function (item) return Item.def_of(item).color end
 -- Functions receive (item, player): plain data in, no `self`, no hierarchy.
 -- Adding a fourth kind later = one new key here (composition, not a subclass).
 local behaviors = {
-    weapon = {
-        equip   = function (item, player) player.equipped.weapon = item end,
-        unequip = function (item, player) player.equipped.weapon = nil end,
+    melee = {
+        equip   = function (item, player) player.equipped.melee = item end,
+        unequip = function (item, player) player.equipped.melee = nil end,
+    },
+    ranged = {
+        equip   = function (item, player) player.equipped.ranged = item end,
+        unequip = function (item, player) player.equipped.ranged = nil end,
     },
     armor = {
         equip   = function (item, player) player.equipped.armor = item end,
