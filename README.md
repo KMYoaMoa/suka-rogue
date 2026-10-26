@@ -8,14 +8,18 @@
 
 Scheduled Oct. 2026
 
-- [ ] Basic Combat System
 - [ ] Mob AI
+- [ ] More Organized UI System
+- [ ] Improve Appearance
+  - [ ] Fonts for ASCII Mode
+  - [ ] Improve UI Layout
+  - [ ] Add Assets Mode
+- [ ] BFS Optimization
 
 Queued
 
 - [ ] Save & Load
 - [ ] Music/Audio System
-- [ ] More Organized UI System
 
 Experiments
 
@@ -23,10 +27,6 @@ Experiments
 
 Improvements
 
-- [ ] Improve Appearance
-  - [ ] Fonts for ASCII Mode
-  - [ ] Improve UI Layout
-  - [ ] Add Assets Mode
 
 Done
 
@@ -45,6 +45,7 @@ Done
 - [x] Construct and NPC Spawn System
 - [x] Integration of Mobs, Items, Constructs and Room Type
 - [x] Color, Brightness and Player View System
+- [x] Basic Combat System
 
 ## Player and Race
 
