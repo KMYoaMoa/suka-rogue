@@ -22,20 +22,26 @@ end
 
 local function drain_queue()
     while #queue > 0 do
+        if GameState.state == "dead" then
+            queue = {}                               -- discard pending commands
+            return
+        end
         local cmd = table.remove(queue, 1)
         cmd.execute()
     end
 end
 
 CommandService.process = function ()
-    while GameState.state ~= "waiting" do
+    while GameState.state ~= "waiting" and GameState.state ~= "dead" do
         drain_queue()                                -- commands from the last
         local slot = schedule[GameState.ticks] or {}
         schedule[GameState.ticks] = nil
         for i, invoker in ipairs(slot) do
+            if GameState.state == "dead" then return end
             invoker.trigger()
             drain_queue()                            -- (future mobs: their own
         end                                          --  command instead)
+        if GameState.state == "dead" then return end
         GameState.ticks = GameState.ticks + 1                            -- next integer tick
     end
 end

@@ -46,7 +46,7 @@ local function populate_room(room, def)
             local x, y = RoomService.random_tile(room)
             if not x then break end
             local mob_type = def.mob_pool[math.random(#def.mob_pool)]
-            MobService.spawn(mob_type, x, y)
+            MobService.spawn(mob_type, x, y, room)
         end
     end
     if def.npcs > 0 and #def.npc_pool > 0 then

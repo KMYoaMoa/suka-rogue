@@ -16,36 +16,23 @@ local function decay_at(tile)
     return math.max(0, tile.darkness or conf.CORRIDOR_DARKNESS)
 end
 
-local function mark_visible(tile, light)
-    tile.visible = true
-    tile.discovered = true
-    if light > (tile.light or 0) then tile.light = light end
-end
-
-local function clear_visibility()
-    DungeonService.iterate({
-        during = function (x, y)
-            local t = DungeonService.getTile(x, y)
-            t.visible = false
-            t.light   = 0
-            -- t.discovered persists
-        end,
-    })
-end
-
--- Recompute the player's FOV and update tile states.
--- Call once per processed turn (and once after game init).
-VisionService.update = function ()
-    clear_visibility()
-
-    local px, py = Player.x, Player.y
-    if not conf.is_pos_valid(px, py) then return end
+-- Pure FOV computation: returns a local map "x:y" -> remaining light.
+-- It never touches tile.visible, so mobs can compute their own FOV without
+-- corrupting the player's view.
+local function compute(ox, oy, start)
+    local visible = {}
+    if not conf.is_pos_valid(ox, oy) then return visible end
 
     local buckets = {}   -- buckets[remaining] = { {x, y}, ... }
     local best    = {}   -- "x:y" -> highest remaining vision seen
 
+    local function mark(x, y, light)
+        local key = x .. ":" .. y
+        if light > (visible[key] or 0) then visible[key] = light end
+    end
+
     local function push(x, y, remaining)
-        if remaining <= 0 then return end            -- draft: <= 0 is invisible
+        if remaining <= 0 then return end
         local key = x .. ":" .. y
         if (best[key] or 0) >= remaining then return end
         best[key] = remaining
@@ -54,9 +41,9 @@ VisionService.update = function ()
         b[#b + 1] = { x, y }
     end
 
-    push(px, py, conf.VISION_START)
+    push(ox, oy, start)
 
-    for remaining = conf.VISION_START, 1, -1 do
+    for remaining = start, 1, -1 do
         local bucket = buckets[remaining]
         if bucket then
             -- while-loop, not for: a zero-darkness tile pushes neighbours
@@ -68,7 +55,7 @@ VisionService.update = function ()
 
                 if best[x .. ":" .. y] == remaining then
                     local tile = DungeonService.getTile(x, y)
-                    mark_visible(tile, remaining)
+                    mark(x, y, remaining)
 
                     if not Tile.opaque(tile) then
                         for _, d in ipairs(DIRS4) do
@@ -88,13 +75,48 @@ VisionService.update = function ()
                             if conf.is_pos_valid(nx, ny) then
                                 local next_tile = DungeonService.getTile(nx, ny)
                                 if next_tile.type == "wall" then
-                                    mark_visible(next_tile, remaining)
+                                    mark(nx, ny, remaining)
                                 end
                             end
                         end
                     end
                 end
             end
+        end
+    end
+
+    return visible
+end
+
+-- Shared FOV entry point for mobs and any future actors.
+VisionService.compute_visible = function (x, y, start)
+    return compute(x, y, start or conf.VISION_START)
+end
+
+local function clear_visibility()
+    DungeonService.iterate({
+        during = function (x, y)
+            local t = DungeonService.getTile(x, y)
+            t.visible = false
+            t.light   = 0
+            -- t.discovered persists
+        end,
+    })
+end
+
+-- Recompute the player's FOV and update tile states.
+-- Call once per processed turn (and once after game init).
+VisionService.update = function ()
+    clear_visibility()
+
+    local visible = compute(Player.x, Player.y, conf.VISION_START)
+    for key, light in pairs(visible) do
+        local x, y = key:match("^(%d+):(%d+)$")
+        if x then
+            local tile = DungeonService.getTile(tonumber(x), tonumber(y))
+            tile.visible = true
+            tile.discovered = true
+            if light > (tile.light or 0) then tile.light = light end
         end
     end
 end
