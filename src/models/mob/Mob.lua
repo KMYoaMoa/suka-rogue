@@ -13,7 +13,7 @@ local defs = {
         name = "Rat", kind = "enemy",
         glyph = "r", color = {0.75, 0.60, 0.45},
         tags = { "enemy" },
-        stats = { health = 5, attack = 2, defense = 0, speed = 6 },
+        stats = { health = 5, attack = 2, defense = 0, speed = 1 },
         equipment = {},
         drops = { { type = "coin", qty = 1 } },
     },
@@ -21,7 +21,7 @@ local defs = {
         name = "Bat", kind = "enemy",
         glyph = "b", color = {0.65, 0.55, 0.75},
         tags = { "enemy" },
-        stats = { health = 3, attack = 1, defense = 0, speed = 3 },  -- fast
+        stats = { health = 3, attack = 1, defense = 0, speed = 1 },
         equipment = {},
         drops = { { type = "coin", qty = 1 } },
     },
@@ -29,7 +29,7 @@ local defs = {
         name = "Scavenger", kind = "enemy",
         glyph = "s", color = {0.90, 0.70, 0.30},
         tags = { "enemy" },
-        stats = { health = 12, attack = 4, defense = 1, speed = 8 },
+        stats = { health = 12, attack = 4, defense = 1, speed = 1 },
         equipment = { weapon = "sword", armor = "plate" },   -- the mob HAS items
         drops = { { type = "medkit", qty = 1 }, { type = "coin", qty = 3 } },
     },
@@ -37,7 +37,7 @@ local defs = {
         name = "Something", kind = "enemy",
         glyph = "?", color = {0.80, 0.80, 0.80},
         tags = { "enemy" },
-        stats = { health = 1, attack = 1, defense = 0, speed = 10 },
+        stats = { health = 1, attack = 1, defense = 0, speed = 1 },
         equipment = {},
         drops = {},
     },
@@ -60,6 +60,16 @@ Mob.new = function (type_name)
         equipped = { weapon = nil, armor = nil },
         dead     = false,                -- soft-cancel for the scheduled invoker
         invoker  = nil,                  -- set by MobService.spawn
+        ai       = {
+            state        = "wander",   -- "wander" | "pursue" | "patrol" | "return"
+            territory    = nil,        -- Cell room where the mob was born
+            wait         = 2,           -- mob actions to wait before the next loop
+            steps_left   = 0,           -- steps left in the current 3-step run
+            dir          = nil,         -- {dx, dy} for the current run
+            patrol_loops = 0,           -- remaining patrol loops
+            last_seen    = nil,         -- {x, y} of the pursued target
+            target       = nil,         -- Player table or Npc instance
+        },
     }
 end
 

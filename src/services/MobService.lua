@@ -4,6 +4,7 @@ local Item             = require "models.item.Item"
 local Dungeon          = require "models.dungeon.Dungeon"
 local DungeonService   = require "services.DungeonService"
 local CommandService   = require "services.CommandService"
+local MobAIService     = require "services.MobAIService"
 local InventoryService = require "services.InventoryService"
 local MessageService   = require "services.MessageService"
 local GameState        = require "models.GameState"
@@ -22,12 +23,14 @@ end
 -- Public spawn interface (the deliverable of this branch).
 --   type_name: a key of Mob.defs (unknown -> generic fallback)
 --   x, y:      absolute tile position
+--   room:      optional born room; stored as the mob's AI territory
 -- Returns the mob instance, or nil if the position is invalid.
-MobService.spawn = function (type_name, x, y)
+MobService.spawn = function (type_name, x, y, room)
     if not MobService.can_spawn_at(x, y) then return nil end
 
     local mob = Mob.new(type_name)
     mob.x, mob.y = x, y
+    mob.ai.territory = room or DungeonService.room_at(x, y)
 
     -- Composition: the mob HAS equipment, built from the same Item registry.
     for slot, item_type in pairs(Mob.def_of(mob).equipment) do
@@ -44,11 +47,10 @@ MobService.spawn = function (type_name, x, y)
     return mob
 end
 
--- PLACEHOLDER: Mob AI lands here (next README item). For now a mob only
--- reschedules itself ("passes its turn"). Never touch GameState.state here:
--- only the player's trigger may set "waiting".
+-- Mob AI runs here. One action per scheduled mob turn; then reschedule.
 MobService.act = function (mob)
-    if mob.dead then return end                       -- soft-cancel a dead mob
+    if mob.dead then return end
+    MobAIService.act(mob)
     mob.invoker.reschedule(GameState.ticks + Mob.def_of(mob).stats.speed)
 end
 
