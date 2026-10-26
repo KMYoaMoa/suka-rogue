@@ -14,8 +14,10 @@ local GameApplication = {}
 local function run_turn()
     GameState.state = "running"
     CommandService.process()                                   -- runs until "waiting"
-    VisionService.update()
-    CombatService.update_targets()
+    if GameState.state ~= "dead" then
+        VisionService.update()
+        CombatService.update_targets()
+    end
 end
 
 GameApplication.init = function ()
@@ -29,6 +31,7 @@ GameApplication.init = function ()
 end
 
 GameApplication.handle_key_press = function (key)
+    if GameState.state == "dead" then return end
     local action = InputHandler.handle_action(key)
 
     if GameState.state == "waiting" then
