@@ -6,8 +6,8 @@ local Biome = {}
 local MIN_BIOME_SIZE = 1
 local MAX_BIOME_SIZE = 3
 
--- Assign a biome to every reachable room; returns dead rooms for the caller
--- (dungeon.lua) to seal in the tile grid.
+-- Assign a biome to every reachable room, growing clusters over `connected`.
+-- Generation-time only; the caller rasterizes the result into the tile grid.
 function Biome:assign(map)
     local assigned = {}
     local active = map.cell_list

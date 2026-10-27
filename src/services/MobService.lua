@@ -1,5 +1,4 @@
 local Mob              = require "models.mob.Mob"
-local Player           = require "models.Player"
 local Item             = require "models.item.Item"
 local Dungeon          = require "models.dungeon.Dungeon"
 local DungeonService   = require "services.DungeonService"
@@ -11,16 +10,13 @@ local GameState        = require "models.GameState"
 
 local MobService = {}
 
--- A spawn is valid iff the tile is in bounds, passable, free of another
--- occupant, and not the player's tile. Items may share the tile (drops do).
--- Occupancy is a map query, so this rule has a single source of truth shared
--- with PlayerService (see DungeonService.occupant_at / is_free).
+-- A spawn is valid iff the tile is in bounds, passable, and free of another
+-- occupant (including the player). Items may share the tile (drops do).
 MobService.can_spawn_at = function (x, y)
     return DungeonService.is_free(x, y)
-       and not (x == Player.x and y == Player.y)
 end
 
--- Public spawn interface (the deliverable of this branch).
+-- Public spawn interface.
 --   type_name: a key of Mob.defs (unknown -> generic fallback)
 --   x, y:      absolute tile position
 --   room:      optional born room; stored as the mob's AI territory
@@ -37,8 +33,8 @@ MobService.spawn = function (type_name, x, y, room)
         mob.equipped[slot] = Item.new(item_type)
     end
 
-    -- Register with the tick scheduler. The trigger stays stable; Mob AI
-    -- will only change the body of MobService.act.
+    -- Register with the tick scheduler. The trigger stays stable; the AI body
+    -- is MobService.act.
     mob.invoker = CommandService.new_invoker("Mob:" .. Mob.name(mob))
     mob.invoker.trigger = function () MobService.act(mob) end
     mob.invoker.reschedule(GameState.ticks + Mob.def_of(mob).stats.speed)
@@ -60,23 +56,8 @@ MobService.remove = function (mob)
     end
 end
 
--- Derived stats: base + composed equipment (mirrors the player's future
--- get_attack/get_defense). Nothing consumes these until combat lands.
-MobService.get_attack = function (mob)
-    local weapon = mob.equipped.weapon
-    return Mob.def_of(mob).stats.attack
-         + (weapon and Item.def_of(weapon).stats.damage or 0)
-end
-
-MobService.get_defense = function (mob)
-    local armor = mob.equipped.armor
-    return Mob.def_of(mob).stats.defense
-         + (armor and Item.def_of(armor).stats.defense or 0)
-end
-
--- Kill interface: NOT called by anything yet (the combat system will call it).
--- Places drops on the mob's tile, marks it dead (so its scheduled invoker
--- becomes a no-op), and removes it from the map.
+-- Kill interface: places drops on the mob's tile, marks it dead (so its
+-- scheduled invoker becomes a no-op), and removes it from the map.
 MobService.kill = function (mob)
     if mob.dead then return end
     mob.dead = true

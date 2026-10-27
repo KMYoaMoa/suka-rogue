@@ -5,6 +5,8 @@ local DungeonService = require "services.DungeonService"
 local Palette        = require "models.dungeon.Palette"
 local VisionService  = require "services.VisionService"
 local CombatService  = require "services.CombatService"
+local CommandService = require "services.CommandService"
+local GameState      = require "models.GameState"
 local Item           = require "models.item.Item"
 local conf           = require "conf"
 
@@ -16,7 +18,9 @@ end
 
 CameraView.render = function ()
     local player_x, player_y = PlayerService.getPosition()
+    CameraService.update(player_x, player_y)
     local camera_w, camera_h = CameraService.getDimensions()
+    local next_tick = (GameState.state ~= "dead") and CommandService.next_tick() or nil
 
     for sx = 0, camera_w - 1, 1 do
         for sy = 0, camera_h - 1, 1 do
@@ -47,7 +51,13 @@ CameraView.render = function ()
                 local occupant  = DungeonService.occupant_at(wx, wy)
                 local construct = occupant and occupant.def and occupant.def.kind == "construct"
                 if occupant and (state == "visible" or construct) then
-                    set_color(occupant.color, dim)
+                    local due_next = next_tick
+                        and occupant.def
+                        and occupant.def.kind == "enemy"
+                        and occupant.invoker
+                        and CommandService.is_scheduled(occupant.invoker, next_tick)
+                    local color = due_next and conf.NEXT_ACTOR_COLOR or occupant.color
+                    set_color(color, dim)
                     love.graphics.print(occupant.glyph, transform)
                     love.graphics.setColor(1, 1, 1)
                 else

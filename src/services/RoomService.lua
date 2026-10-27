@@ -1,4 +1,3 @@
-local Player           = require "models.Player"
 local Dungeon          = require "models.dungeon.Dungeon"
 local RoomType         = require "models.dungeon.RoomType"
 local DungeonService   = require "services.DungeonService"
@@ -11,12 +10,11 @@ local RoomService = {}
 
 local MAX_TRIES = 50
 
--- A tile that may receive room content: in bounds, passable, no mob, no
--- existing item, and not the player's tile. When `avoid_entrance` is true
+-- A tile that may receive room content: in bounds, passable, unoccupied
+-- (including the player), and no existing item. When `avoid_entrance` is true
 -- (immovable NPCs/constructs), room entrance/exit tiles are excluded too.
 RoomService.tile_available = function (x, y, avoid_entrance)
     return DungeonService.is_free(x, y)
-       and not (x == Player.x and y == Player.y)
        and #InventoryService.items_at(x, y) == 0
        and not (avoid_entrance and DungeonService.is_entrance(x, y))
 end

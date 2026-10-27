@@ -29,13 +29,6 @@ local function in_room(room, x, y)
        and y >= room.y_pos and y <= room:y_pos_end()
 end
 
--- Mirrors MobService.get_attack; kept local to avoid a require cycle.
-local function attack_power(mob)
-    local weapon = mob.equipped.weapon
-    return Mob.def_of(mob).stats.attack
-         + ((weapon and weapon.def.stats.damage) or 0)
-end
-
 -- Terrain BFS distances (walls block; occupants ignored). Used only to pick
 -- the nearest visible NPC; movement pathing below respects occupancy.
 local function terrain_distances(mob)
@@ -248,10 +241,10 @@ end
 MobCommands.attack = function (mob, target)
     return { execute = function ()
         if target == Player then
-            PlayerStatsService.apply_damage(attack_power(mob), Mob.name(mob))
+            PlayerStatsService.apply_damage(Mob.attack_of(mob), Mob.name(mob))
         else
             if target.dead then return end
-            local damage = attack_power(mob)
+            local damage = Mob.attack_of(mob)
             target.health = math.max(0, target.health - damage)
             MessageService.add(string.format(
                 "The %s hits the %s for %d (HP %d/%d).",

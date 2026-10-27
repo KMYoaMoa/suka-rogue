@@ -1,4 +1,5 @@
 local Dungeon = require "models.dungeon.Dungeon"
+local Player = require "models.Player"
 local conf = require "conf"
 local Tile = require "models.dungeon.Tile"
 
@@ -16,6 +17,12 @@ end
 
 -- Initialize dungeon object
 DungeonService.clear = function ()
+    Dungeon.rooms = {}
+    Dungeon.paths = {}
+    Dungeon.items = {}
+    Dungeon.mobs = {}
+    Dungeon.npcs = {}
+    Dungeon.constructs = {}
     DungeonService.iterate({
         before = function (x) Dungeon[x] = {} end,
         during = function (x, y) DungeonService.setTile("void", x, y) end
@@ -74,7 +81,10 @@ DungeonService.floor_around = function (x, y)
     return fallback
 end
 
-DungeonService.is_passable = function (x, y) return Tile.passable(Dungeon[x][y]) end
+DungeonService.is_passable = function (x, y)
+    if not conf.is_pos_valid(x, y) then return false end
+    return Tile.passable(Dungeon[x][y])
+end
 
 -- The room whose bounds contain (x, y), or nil (corridors are not rooms).
 DungeonService.room_at = function (x, y)
@@ -127,8 +137,10 @@ end
 
 -- The first live occupant standing on (x, y), or nil.
 -- Occupant contract: x, y, name, glyph, color, and optional `dead`.
--- Mobs, NPCs and constructs all block; items do not (they render separately).
+-- The player, mobs, NPCs and constructs all block; items do not (they render
+-- separately). This keeps movement and spawn checks on one invariant.
 DungeonService.occupant_at = function (x, y)
+    if Player.x == x and Player.y == y then return Player end
     return scan(Dungeon.mobs, x, y)
         or scan(Dungeon.npcs, x, y)
         or scan(Dungeon.constructs, x, y)

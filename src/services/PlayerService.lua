@@ -1,9 +1,8 @@
-local conf = require "conf"
 local Player = require "models.Player"
+local Item = require "models.item.Item"
 local MessageService = require "services.MessageService"
 local DungeonService = require "services.DungeonService"
 local CommandService = require "services.CommandService"
-local CameraService = require "services.CameraService"
 local InventoryService = require "services.InventoryService"
 local InventoryCommands = InventoryService.commands
 local CombatService = require "services.CombatService"
@@ -12,7 +11,17 @@ local GameState = require "models.GameState"
 local PlayerService = {}
 local PlayerCommands = {}
 
+PlayerService.reset = function ()
+    Player.armor = Player.armor_max
+    Player.health = Player.health_max
+    Player.magic = Player.magic_max
+    Player.inventory = {}
+    Player.equipped = { melee = nil, ranged = nil, armor = nil }
+    Player.mode = "unarmed"
+end
+
 PlayerService.init = function ()
+    PlayerService.reset()
     local r = DungeonService.getSpawnRoom()
     PlayerService.setPosition(
         r.x_pos + math.floor(r.x_size / 2),
@@ -24,7 +33,6 @@ PlayerService.init = function ()
         PlayerService.invoker.reschedule(GameState.ticks + 1)
     end
     PlayerService.invoker.reschedule(1)
-   	CameraService.update(Player.x, Player.y)                     -- center on the player (per frame)
 end
 
 -- Set position of player directly
@@ -59,14 +67,43 @@ PlayerCommands.move = function (dx, dy)
                     "warning")
             end
         end
-        CameraService.update(Player.x, Player.y)
     end }
 end
 
-PlayerService.pickup  = function () PlayerService.invoker.append_command(InventoryCommands.pickup()) end
-PlayerService.equip   = function (i) PlayerService.invoker.append_command(InventoryCommands.equip(i)) end
-PlayerService.use     = function (i) PlayerService.invoker.append_command(InventoryCommands.use(i)) end
-PlayerService.drop    = function (i) PlayerService.invoker.append_command(InventoryCommands.drop(i)) end
+-- Inventory actions validate before enqueueing so a failed action does not
+-- advance the tick. The commands retain their own guards as a fallback.
+PlayerService.pickup = function ()
+    PlayerService.invoker.append_command(InventoryCommands.pickup())
+end
+
+PlayerService.equip = function (i)
+    local item = Player.inventory[i]
+    if not item or not Item.is_equippable(item) then
+        MessageService.add("You can't equip that.", "warning")
+        return false
+    end
+    PlayerService.invoker.append_command(InventoryCommands.equip(i))
+    return true
+end
+
+PlayerService.use = function (i)
+    local item = Player.inventory[i]
+    if not item or not Item.is_usable(item) then
+        MessageService.add("You can't use that.", "warning")
+        return false
+    end
+    PlayerService.invoker.append_command(InventoryCommands.use(i))
+    return true
+end
+
+PlayerService.drop = function (i)
+    if not Player.inventory[i] then
+        MessageService.add("There is nothing to drop.", "warning")
+        return false
+    end
+    PlayerService.invoker.append_command(InventoryCommands.drop(i))
+    return true
+end
 
 -- Switch combat mode. Returns true if a tick-consuming command was enqueued.
 PlayerService.switch_mode = function (mode)

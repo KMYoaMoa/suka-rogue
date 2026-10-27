@@ -1,5 +1,6 @@
 local conf           = require "conf"
 local Player         = require "models.Player"
+local Mob            = require "models.mob.Mob"
 local Dungeon        = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local MobService     = require "services.MobService"
@@ -131,7 +132,7 @@ end
 
 function CombatService.defense_of(target)
     if target.def.kind == "enemy" then
-        return MobService.get_defense(target)
+        return Mob.defense_of(target)
     end
     return 0                                        -- NPCs have no defense stat
 end

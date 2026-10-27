@@ -33,7 +33,6 @@ MessageService.recent = function (n)
     return out
 end
 
-MessageService.count = function () return #history end
 
 MessageService.clear = function () history = {} end
 

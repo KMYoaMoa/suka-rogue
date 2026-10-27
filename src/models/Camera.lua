@@ -1,4 +1,3 @@
-local Tile = require "models.dungeon.Tile"
 local conf = require "conf"
 
 -- Camera: size of the visible area (in tiles) and the world tile shown

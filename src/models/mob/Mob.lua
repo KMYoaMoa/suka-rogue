@@ -2,6 +2,8 @@
 -- pattern) and one *instance* per concrete creature on the map.
 local Mob = {}
 
+local Item = require "models.item.Item"
+
 -- Shared per-type definitions. Keyed by type name.
 --   kind:      "enemy" today (beasts will be a tag, not a different kind)
 --   tags:      capability/classification flags ("enemy", later "beast")
@@ -13,7 +15,7 @@ local defs = {
         name = "Rat", kind = "enemy",
         glyph = "r", color = {0.75, 0.60, 0.45},
         tags = { "enemy" },
-        stats = { health = 5, attack = 2, defense = 0, speed = 1 },
+        stats = { health = 5, attack = 2, defense = 0, speed = 2 },
         equipment = {},
         drops = { { type = "coin", qty = 1 } },
     },
@@ -21,7 +23,7 @@ local defs = {
         name = "Bat", kind = "enemy",
         glyph = "b", color = {0.65, 0.55, 0.75},
         tags = { "enemy" },
-        stats = { health = 3, attack = 1, defense = 0, speed = 1 },
+        stats = { health = 3, attack = 1, defense = 0, speed = 2 },
         equipment = {},
         drops = { { type = "coin", qty = 1 } },
     },
@@ -29,7 +31,7 @@ local defs = {
         name = "Scavenger", kind = "enemy",
         glyph = "s", color = {0.90, 0.70, 0.30},
         tags = { "enemy" },
-        stats = { health = 12, attack = 4, defense = 1, speed = 1 },
+        stats = { health = 12, attack = 4, defense = 1, speed = 3 },
         equipment = { weapon = "sword", armor = "plate" },   -- the mob HAS items
         drops = { { type = "medkit", qty = 1 }, { type = "coin", qty = 3 } },
     },
@@ -84,6 +86,20 @@ Mob.has_tag = function (mob, tag)
         if t == tag then return true end
     end
     return false
+end
+
+-- Derived stats: base + composed equipment. Pure model logic, shared by
+-- MobService and MobAIService without a service-level cycle.
+Mob.attack_of = function (mob)
+    local weapon = mob and mob.equipped and mob.equipped.weapon
+    return Mob.def_of(mob).stats.attack
+         + ((weapon and Item.def_of(weapon).stats.damage) or 0)
+end
+
+Mob.defense_of = function (mob)
+    local armor = mob and mob.equipped and mob.equipped.armor
+    return Mob.def_of(mob).stats.defense
+         + ((armor and Item.def_of(armor).stats.defense) or 0)
 end
 
 return Mob

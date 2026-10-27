@@ -1,8 +1,9 @@
 local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
-local InputHandler = require "controllers.InputHander"
+local InputHandler = require "controllers.InputHandler"
 local DungeonGenerate = require "services.DungeonGenerate"
+local DungeonService = require "services.DungeonService"
 local RoomService = require "services.RoomService"
 local VisionService = require "services.VisionService"
 local CombatService = require "services.CombatService"
@@ -20,14 +21,25 @@ local function run_turn()
     end
 end
 
+GameApplication.reset = function ()
+    CommandService.reset()
+    DungeonService.clear()
+    PlayerService.reset()
+    GameState.ticks = 0
+    GameState.state = "waiting"
+    GameState.selected_slot = nil
+    MessageService.clear()
+end
+
 GameApplication.init = function ()
+    GameApplication.reset()
     DungeonGenerate.create(20, 3)
     PlayerService.init()
     RoomService.populate()
 
-    MessageService.clear()
     MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
-    run_turn()
+    VisionService.update()
+    CombatService.update_targets()
 end
 
 GameApplication.handle_key_press = function (key)
@@ -81,16 +93,17 @@ GameApplication.handle_key_press = function (key)
         end
 
         -- e/u/d act on the selected slot; other keys ignored
+        local acted = false
         if action == "equip" and GameState.selected_slot then
-            PlayerService.equip(GameState.selected_slot)
+            acted = PlayerService.equip(GameState.selected_slot)
         elseif action == "use" and GameState.selected_slot then
-            PlayerService.use(GameState.selected_slot)
+            acted = PlayerService.use(GameState.selected_slot)
         elseif action == "drop" and GameState.selected_slot then
-            PlayerService.drop(GameState.selected_slot)
+            acted = PlayerService.drop(GameState.selected_slot)
         else
             return     -- movement etc. does nothing while the list is open
         end
-        run_turn()
+        if acted then run_turn() end
         return
     end
 end
