@@ -19,9 +19,7 @@ local BIOMES = {
 -- Corridors and unknown/absent biomes: biome-independent by design (draft).
 local DEFAULT = { floor = {0.65, 0.65, 0.70}, wall = {0.81, 0.81, 0.86} }
 
-Palette.ORDER   = ORDER
-Palette.biomes  = BIOMES
-Palette.DEFAULT = DEFAULT
+Palette.ORDER = ORDER
 
 Palette.of = function (biome)
     return BIOMES[biome] or DEFAULT

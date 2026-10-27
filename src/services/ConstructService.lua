@@ -1,5 +1,4 @@
 local Construct        = require "models.construct.Construct"
-local Player           = require "models.Player"
 local Dungeon          = require "models.dungeon.Dungeon"
 local DungeonService   = require "services.DungeonService"
 local NpcService       = require "services.NpcService"
@@ -8,7 +7,6 @@ local ConstructService = {}
 
 ConstructService.can_spawn_at = function (x, y)
     return DungeonService.is_free(x, y)
-       and not (x == Player.x and y == Player.y)
        and not DungeonService.is_entrance(x, y)
 end
 

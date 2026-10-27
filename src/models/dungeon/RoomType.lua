@@ -31,6 +31,13 @@ local defs = {
         npcs  = 0, npc_pool  = {},
         constructs = 1, construct_pool = { "chest" },
     },
+    empty = {
+        name = "Empty", weight = 0,
+        items = 0, item_pool = {},
+        mobs  = 0, mob_pool  = {},
+        npcs  = 0, npc_pool  = {},
+        constructs = 0, construct_pool = {},
+    },
 }
 
 -- Weighted roll. With weights {1,1,8}: 1 -> shop, 2 -> storeroom, 3..10 -> ruins.
@@ -53,12 +60,11 @@ RoomType.assign = function (map)
     end
 end
 
--- Nil-safe lookup; an unassigned room falls back to the empty type.
+-- Nil-safe lookup; an unassigned room falls back to the neutral empty type.
 RoomType.def_of = function (room)
     local t = room and room.room_type
-    return defs[t] or defs.shop
+    return defs[t] or defs.empty
 end
 
-RoomType.defs = defs
 
 return RoomType

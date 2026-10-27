@@ -39,7 +39,5 @@ Tile.def_of = function (tile) return tile and tile.def or defs.wall end
 -- Convenience queries that take a tile instance (nil-safe -> wall).
 Tile.passable = function (tile) return Tile.def_of(tile).passable end
 Tile.opaque   = function (tile) return Tile.def_of(tile).opaque end
-Tile.glyph    = function (tile) return Tile.def_of(tile).glyph end
-Tile.color    = function (tile) return Tile.def_of(tile).color end
 
 return Tile

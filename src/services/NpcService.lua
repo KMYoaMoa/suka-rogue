@@ -1,5 +1,4 @@
 local Npc              = require "models.npc.Npc"
-local Player           = require "models.Player"
 local Dungeon          = require "models.dungeon.Dungeon"
 local DungeonService   = require "services.DungeonService"
 local MessageService   = require "services.MessageService"
@@ -8,7 +7,6 @@ local NpcService = {}
 
 NpcService.can_spawn_at = function (x, y)
     return DungeonService.is_free(x, y)
-       and not (x == Player.x and y == Player.y)
        and not DungeonService.is_entrance(x, y)
 end
 
@@ -37,9 +35,9 @@ NpcService.dead_in_room = function (room)
     return false
 end
 
--- Kill interface: nothing calls this yet (no combat). The dead entry is kept
--- in Dungeon.npcs so "NPC dead in room" conditions still work; occupant_at
--- ignores it, so its tile becomes free.
+-- Kill interface: the dead entry is kept in Dungeon.npcs so
+-- "NPC dead in room" conditions still work; occupant_at ignores it, so its
+-- tile becomes free.
 NpcService.kill = function (npc)
     if npc.dead then return end
     npc.dead = true

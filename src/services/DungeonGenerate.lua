@@ -62,8 +62,12 @@ local function shrink(map)
 	for _, i in ipairs(map.cell_list) do
 	    local x_factor = math.random(6, 9)
 		local y_factor = math.random(6, 9)
-		local x_size_new = math.max(math.floor(x_factor * i.x_size / 10), map.min_dimension)
-        local y_size_new = math.max(math.floor(y_factor * i.y_size / 10), map.min_dimension)
+        -- Never grow a tiny leaf past its current size: that would make the
+        -- centering offset negative and push the room outside the grid.
+		local x_size_new = math.min(i.x_size,
+            math.max(math.floor(x_factor * i.x_size / 10), map.min_dimension))
+        local y_size_new = math.min(i.y_size,
+            math.max(math.floor(y_factor * i.y_size / 10), map.min_dimension))
         local x_offset = math.floor((i.x_size - x_size_new) * 0.5)
         local y_offset = math.floor((i.y_size - y_size_new) * 0.5)
         i.x_pos = i.x_pos + x_offset
@@ -185,6 +189,28 @@ local function carve(map)
     Dungeon.paths = map.path_list
 end
 
+-- Defensive guard: a floor must never remain on the outer boundary. The
+-- generation margin already prevents this, and normal wall carving supplies
+-- the walls adjacent to playable floors. Only convert a boundary floor if a
+-- future change accidentally creates one; do not fill the empty border with
+-- a visible wall ring.
+local function seal_boundary_floors()
+    DungeonService.iterate({
+        during = function (x, y)
+            if x == 0 or x == conf.SIZE_X - 1
+               or y == 0 or y == conf.SIZE_Y - 1 then
+                if DungeonService.getTile(x, y).type == "floor" then
+                    local floor = DungeonService.floor_around(x, y)
+                    local t = Tile.new("wall")
+                    t.biome = floor and floor.biome or nil
+                    t.darkness = floor and floor.darkness or conf.CORRIDOR_DARKNESS
+                    DungeonService.setTile(t, x, y)
+                end
+            end
+        end
+    })
+end
+
 -- Per-room base darkness: lower = brighter = farther vision.
 -- Shops are deliberately fully lit (darkness 0 -> no vision decay).
 local function assign_darkness(map)
@@ -198,12 +224,10 @@ local function assign_darkness(map)
 end
 
 -- Generate a dungeon map.
---   map_x_size:      expected map width in cells
---   map_y_size:      expected map height in cells
---   min_dimension:   minimal cell/room dimension
 --   num_rooms:       number of rooms/cells to partition into
+--   min_dimension:   minimal cell/room dimension
 function DungeonFactory.create(num_rooms, min_dimension)
-    local root = Cell:new(1, 1, conf.SIZE_X, conf.SIZE_Y)
+    local root = Cell:new(1, 1, conf.SIZE_X - 2, conf.SIZE_Y - 2)
     local map = Map:new(root, num_rooms, min_dimension)
     divide(map)
     construct_list(map)
@@ -218,6 +242,7 @@ function DungeonFactory.create(num_rooms, min_dimension)
     DungeonService.clear()
     rasterize(map)
     carve(map)
+    seal_boundary_floors()
     return map
 end
 

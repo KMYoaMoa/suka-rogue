@@ -8,6 +8,7 @@
 
 Scheduled Oct. 2026
 
+- [ ] Clean-up-01
 - [ ] More Organized UI System
 - [ ] Improve Appearance
   - [ ] Fonts for ASCII Mode
