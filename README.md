@@ -8,7 +8,6 @@
 
 Scheduled Oct. 2026
 
-- [ ] Clean-up-01
 - [ ] More Organized UI System
 - [ ] Improve Appearance
   - [ ] Fonts for ASCII Mode
@@ -47,6 +46,7 @@ Done
 - [x] Color, Brightness and Player View System
 - [x] Basic Combat System
 - [x] Mob AI
+- [x] Clean-up-01
 
 ## Player and Race
 

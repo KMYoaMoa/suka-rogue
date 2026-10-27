@@ -1,5 +1,4 @@
 experiments/
-docs/aigc/
-docs/draft/
+dev-docs/
 archive/
 .piignore
