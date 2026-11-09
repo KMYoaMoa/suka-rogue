@@ -11,6 +11,7 @@ local files = {
     "tests.test_combat_module",
     "tests.test_ai_vision_module",
     "tests.test_messages_spawn",
+    "tests.test_dungeon_module",
     "tests.test_core",
 }
 

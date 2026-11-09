@@ -1,6 +1,7 @@
 local Camera = require "models.Camera"
-local DungeonService = require "services.DungeonService"
-local Tile = require "models.dungeon.Tile"
+local DungeonModule = require "modules.dungeon"
+local DungeonService = DungeonModule.Service
+local Tile = DungeonModule.Tile
 local conf = require "conf"
 
 local CameraService = {}

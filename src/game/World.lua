@@ -1,6 +1,7 @@
 local Context         = require "game.Context"
-local Dungeon         = require "models.dungeon.Dungeon"
-local DungeonService  = require "services.DungeonService"
+local DungeonModule   = require "modules.dungeon"
+local Dungeon         = DungeonModule.Dungeon
+local DungeonService  = DungeonModule.Service
 local Player          = require "modules.player.Player"
 local Actor           = require "modules.actors.Actor"
 

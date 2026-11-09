@@ -9,8 +9,9 @@ local CommandService    = require "services.CommandService"
 local MessageLog        = require "game.MessageLog"
 local CombatService     = require "modules.combat"
 local PlayerController  = PlayerModule.Controller
-local DungeonService    = require "services.DungeonService"
-local DungeonGenerate   = require "services.DungeonGenerate"
+local DungeonModule     = require "modules.dungeon"
+local DungeonService    = DungeonModule.Service
+local DungeonGenerate   = DungeonModule.Generator
 local SpawnService      = require "game.SpawnService"
 local VisionService     = require "modules.vision"
 

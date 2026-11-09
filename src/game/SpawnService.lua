@@ -1,7 +1,8 @@
-local Dungeon          = require "models.dungeon.Dungeon"
+local DungeonModule    = require "modules.dungeon"
+local Dungeon          = DungeonModule.Dungeon
 local World            = require "game.World"
-local RoomType         = require "models.dungeon.RoomType"
-local DungeonService   = require "services.DungeonService"
+local RoomType         = DungeonModule.RoomType
+local DungeonService   = DungeonModule.Service
 local Items            = require "modules.items"
 local Actors           = require "modules.actors"
 local MobService       = Actors.MobService

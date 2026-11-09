@@ -1,6 +1,7 @@
 local Npc              = require "modules.actors.npc.Npc"
 local World            = require "game.World"
-local DungeonService   = require "services.DungeonService"
+local DungeonModule    = require "modules.dungeon"
+local DungeonService   = DungeonModule.Service
 local MessageService   = require "services.MessageService"
 
 local NpcService = {}

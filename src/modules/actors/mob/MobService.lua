@@ -1,7 +1,8 @@
 local Mob              = require "modules.actors.mob.Mob"
 local Items            = require "modules.items"
 local World            = require "game.World"
-local DungeonService   = require "services.DungeonService"
+local DungeonModule    = require "modules.dungeon"
+local DungeonService   = DungeonModule.Service
 local CommandService   = require "services.CommandService"
 local MobAIService     = require "modules.ai"
 local MessageService   = require "services.MessageService"

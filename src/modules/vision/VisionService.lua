@@ -1,7 +1,8 @@
 local conf           = require "conf"
 local Player         = require "modules.player.Player"
-local DungeonService = require "services.DungeonService"
-local Tile           = require "models.dungeon.Tile"
+local DungeonModule  = require "modules.dungeon"
+local DungeonService = DungeonModule.Service
+local Tile           = DungeonModule.Tile
 
 local VisionService = {}
 
