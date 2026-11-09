@@ -1,14 +1,7 @@
 local CameraService  = require "services.CameraService"
-local PlayerModule = require "modules.player"
-local PlayerController = PlayerModule.Controller
-local World          = require "game.World"
+local Presentation   = require "game.Presentation"
 local DungeonModule  = require "modules.dungeon"
 local Palette        = DungeonModule.Palette
-local VisionService  = require "modules.vision"
-local CombatService  = require "modules.combat"
-local CommandService = require "services.CommandService"
-local GameState      = require "models.GameState"
-local Items          = require "modules.items"
 local conf           = require "conf"
 
 local CameraView = {}
@@ -18,10 +11,10 @@ local function set_color(c, factor)
 end
 
 CameraView.render = function ()
-    local player_x, player_y = PlayerController.getPosition()
+    local player_x, player_y = Presentation.player_position()
     CameraService.update(player_x, player_y)
     local camera_w, camera_h = CameraService.getDimensions()
-    local next_tick = (GameState.state ~= "dead") and CommandService.next_tick() or nil
+    local next_tick = Presentation.next_tick()
 
     for sx = 0, camera_w - 1, 1 do
         for sy = 0, camera_h - 1, 1 do
@@ -29,10 +22,10 @@ CameraView.render = function ()
             local wx = CameraService.world_x(sx)
             local wy = CameraService.world_y(sy)
             local tile  = CameraService.tile_at(sx, sy)
-            local state = VisionService.state_of(tile)
+            local state = Presentation.tile_state(tile)
 
             -- Attack targets: a dark-gray background under the tile glyph.
-            if state == "visible" and CombatService.is_target(wx, wy) then
+            if state == "visible" and Presentation.is_target(wx, wy) then
                 love.graphics.setColor(conf.TARGET_HIGHLIGHT[1],
                                        conf.TARGET_HIGHLIGHT[2],
                                        conf.TARGET_HIGHLIGHT[3])
@@ -49,14 +42,10 @@ CameraView.render = function ()
 
                 -- Visible tiles show everything; discovered tiles show only
                 -- constructs (draft), dimmed.
-                local occupant  = World.occupant_at(wx, wy)
-                local construct = occupant and occupant.def and occupant.def.kind == "construct"
+                local occupant  = Presentation.occupant_at(wx, wy)
+                local construct = Presentation.occupant_kind(occupant) == "construct"
                 if occupant and (state == "visible" or construct) then
-                    local due_next = next_tick
-                        and occupant.def
-                        and occupant.def.kind == "enemy"
-                        and occupant.invoker
-                        and CommandService.is_scheduled(occupant.invoker, next_tick)
+                    local due_next = Presentation.is_next_actor(occupant, next_tick)
                     local color = due_next and conf.NEXT_ACTOR_COLOR or occupant.color
                     set_color(color, dim)
                     love.graphics.print(occupant.glyph, transform)
@@ -64,19 +53,15 @@ CameraView.render = function ()
                 else
                     -- Items are visible only on currently visible tiles.
                     local item = nil
-                    if state == "visible" then
-                        for _, g in ipairs(World.current().items) do
-                            if g.x == wx and g.y == wy then item = g; break end
-                        end
-                    end
+                    if state == "visible" then item = Presentation.item_at(wx, wy) end
                     if item then
-                        set_color(Items.Item.color(item.item), 1)
-                        love.graphics.print(Items.Item.glyph(item.item), transform)
+                        set_color(Presentation.item_color(item), 1)
+                        love.graphics.print(Presentation.item_glyph(item), transform)
                         love.graphics.setColor(1, 1, 1)
                     else
-                        local c = Palette.color_for(tile.biome, tile.type) or tile.def.color
+                        local c = Presentation.tile_color(tile)
                         set_color(c, dim)
-                        love.graphics.print(tile.def.glyph, transform)
+                        love.graphics.print(Presentation.tile_glyph(tile), transform)
                         love.graphics.setColor(1, 1, 1)
                     end
                 end

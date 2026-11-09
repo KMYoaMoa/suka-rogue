@@ -1,5 +1,5 @@
 local conf = require "conf"
-local msg = require "game.MessageLog"
+local Presentation = require "game.Presentation"
 
 local MessageView = {}
 
@@ -7,7 +7,7 @@ local MessageView = {}
 -- panel width; the newest entries are bottom-aligned inside a fixed area so
 -- they never spill into the inventory block below.
 MessageView.render = function ()
-    local entries = msg.recent(conf.MESSAGE_LINES)
+    local entries = Presentation.messages(conf.MESSAGE_LINES)
     local font = love.graphics.getFont()
     local width = conf.HUD_TEXT_WIDTH
     local line_h = conf.MESSAGE_LINE_HEIGHT
@@ -28,7 +28,7 @@ MessageView.render = function ()
     local x = conf.MESSAGE_ORIGIN_X
     local y = conf.MESSAGE_ORIGIN_Y + (area_h - used)
     for _, item in ipairs(draw) do
-        local c = msg.color_of(item.entry)
+        local c = Presentation.message_color(item.entry)
         if c then love.graphics.setColor(c[1], c[2], c[3]) end
         for _, line in ipairs(item.lines) do
             love.graphics.print(line, x, y)

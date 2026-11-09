@@ -1,6 +1,5 @@
 local conf = require "conf"
-local GameState = require "models.GameState"
-local Player = require "models.Player"
+local Presentation = require "game.Presentation"
 local InventoryView = {}
 
 local SLOTS = {
@@ -21,13 +20,13 @@ InventoryView.equipment_lines = function (player)
 end
 
 InventoryView.render = function ()
-    if GameState.state ~= "inventory" then return end
+    if Presentation.state() ~= "inventory" then return end
 
     local x = conf.INV_ORIGIN_X
     local y = conf.INV_ORIGIN_Y
     local step = conf.INV_LINE_HEIGHT
 
-    for _, line in ipairs(InventoryView.equipment_lines(Player)) do
+    for _, line in ipairs(InventoryView.equipment_lines({ equipped = Presentation.equipped() })) do
         love.graphics.print(line, x, y)
         y = y + step
     end
@@ -36,13 +35,14 @@ InventoryView.render = function ()
     love.graphics.print("BACKPACK", x, y)
     y = y + step
 
-    if #Player.inventory == 0 then
+    local inventory = Presentation.inventory()
+    if #inventory == 0 then
         love.graphics.print("empty", x, y)
         return
     end
 
-    for i, entry in ipairs(Player.inventory) do
-        local prefix = (GameState.selected_slot == i and ">" or " ")
+    for i, entry in ipairs(inventory) do
+        local prefix = (Presentation.selected_slot() == i and ">" or " ")
         love.graphics.print(string.format("%d. %s%s x%d", i, prefix, entry.type, entry.qty),
                             x, y)
         y = y + step

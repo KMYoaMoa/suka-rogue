@@ -12,6 +12,7 @@ local files = {
     "tests.test_ai_vision_module",
     "tests.test_messages_spawn",
     "tests.test_dungeon_module",
+    "tests.test_controllers_presentation",
     "tests.test_core",
 }
 

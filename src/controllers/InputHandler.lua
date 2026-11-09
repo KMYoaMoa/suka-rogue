@@ -27,4 +27,22 @@ InputHandler.handle_action = function (key)
     return nil
 end
 
+-- Structured intent for controllers. Keeps raw-key details out of the turn
+-- controller while preserving the compatibility helpers above.
+InputHandler.intent = function (key)
+    local action = InputHandler.handle_action(key)
+    if action then
+        if action:match("^select") then
+            return { type = "select", slot = tonumber(action:sub(7)) }
+        end
+        return { type = action }
+    end
+
+    local dx, dy = InputHandler.handle_move(key)
+    if dx ~= 0 or dy ~= 0 then
+        return { type = "move", dx = dx, dy = dy }
+    end
+    return nil
+end
+
 return InputHandler
