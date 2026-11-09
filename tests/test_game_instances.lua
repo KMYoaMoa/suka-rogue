@@ -1,0 +1,107 @@
+local t = require "tests.support"
+local Game = require "game.Game"
+local Player = require "models.Player"
+local Dungeon = require "models.dungeon.Dungeon"
+local GameState = require "models.GameState"
+local MessageService = require "services.MessageService"
+local PlayerService = require "services.PlayerService"
+local CommandService = require "services.CommandService"
+
+t.test("two Game instances keep player, world, tick, scheduler, and message state separate", function ()
+    local a = Game.new()
+    a:activate()
+    a:init()
+    local a_invoker = PlayerService.invoker
+    Player.health = 37
+    GameState.ticks = 7
+    Dungeon.mobs[#Dungeon.mobs + 1] = { name = "A-SENTINEL", dead = false, x = -1, y = -1 }
+    MessageService.add("A only", "info")
+
+    local b = Game.new()
+    b:activate()
+    b:init()
+    local b_invoker = PlayerService.invoker
+    t.falsy(a.world == b.world)
+    t.falsy(a.world.dungeon == b.world.dungeon)
+    t.equal(Player.health, 100)
+    t.equal(GameState.ticks, 0)
+    t.equal(#MessageService.recent(), 1) -- welcome only
+    t.falsy(PlayerService.invoker == a_invoker)
+    t.truthy(PlayerService.invoker == b_invoker)
+    for _, mob in ipairs(Dungeon.mobs) do
+        t.falsy(mob.name == "A-SENTINEL")
+    end
+
+    Player.health = 88
+    GameState.ticks = 3
+    MessageService.add("B only", "info")
+
+    a:activate()
+    t.equal(Player.health, 37)
+    t.equal(GameState.ticks, 7)
+    t.truthy(PlayerService.invoker == a_invoker)
+    local has_a = false
+    for _, entry in ipairs(MessageService.recent()) do
+        if entry.text == "A only" then has_a = true end
+        t.falsy(entry.text == "B only")
+    end
+    t.truthy(has_a)
+    local has_sentinel = false
+    for _, mob in ipairs(Dungeon.mobs) do
+        if mob.name == "A-SENTINEL" then has_sentinel = true end
+    end
+    t.truthy(has_sentinel)
+
+    b:activate()
+    t.equal(Player.health, 88)
+    t.equal(GameState.ticks, 3)
+    t.truthy(PlayerService.invoker == b_invoker)
+end)
+
+t.test("re-initializing one Game clears its previous run without touching another Game", function ()
+    local a = Game.new()
+    a:activate()
+    a:init()
+    Player.health = 12
+    Dungeon.mobs[#Dungeon.mobs + 1] = { name = "OLD-A", dead = false, x = -1, y = -1 }
+    MessageService.add("old A", "info")
+
+    local b = Game.new()
+    b:activate()
+    b:init()
+    Player.health = 73
+    MessageService.add("B survives", "info")
+
+    a:init() -- activates A and resets only A
+    t.equal(Player.health, 100)
+    t.equal(GameState.ticks, 0)
+    for _, mob in ipairs(Dungeon.mobs) do
+        t.falsy(mob.name == "OLD-A")
+    end
+    t.falsy(#MessageService.recent() > 1)
+
+    b:activate()
+    t.equal(Player.health, 73)
+    local has_b = false
+    for _, entry in ipairs(MessageService.recent()) do
+        if entry.text == "B survives" then has_b = true end
+        t.falsy(entry.text == "old A")
+    end
+    t.truthy(has_b)
+end)
+
+t.test("scheduler queries follow the active Game", function ()
+    local a = Game.new()
+    a:activate()
+    a:init()
+    local a_next = CommandService.next_tick()
+    t.equal(a_next, 1)
+
+    local b = Game.new()
+    b:activate()
+    b:init()
+    t.equal(CommandService.next_tick(), 1)
+
+    a:activate()
+    t.equal(CommandService.next_tick(), 1)
+end)

@@ -3,6 +3,7 @@ local CameraView = require "views.CameraView"
 local MessageView = require "views.MessageView"
 local PlayerStatusView = require "views.PlayerStatusView"
 local InventoryView    = require "views.InventoryView"
+local Game             = require "game.Game"
 local conf = require "conf"
 
 function love.load()
@@ -12,7 +13,7 @@ function love.load()
     love.window.setMode(conf.SCREEN_WIDTH, conf.SCREEN_HEIGHT)
     love.keyboard.setKeyRepeat(true)
 
-    GameApplication.init()
+    GameApplication.init(Game.new())
 end
 
 function love.draw()

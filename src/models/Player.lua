@@ -1,18 +1,37 @@
+local Context = require "game.Context"
+
+-- Per-run player state. The module is a proxy to the active Game's player
+-- during Phase 3, so existing services keep their current API while each Game
+-- owns an independent copy of the aggregate.
 local Player = {}
 
-Player.armor = 100
-Player.armor_max = 100
-Player.health = 100
-Player.health_max = 100
-Player.magic = 100
-Player.magic_max = 100
+function Player.new_state()
+    return {
+        armor = 100,
+        armor_max = 100,
+        health = 100,
+        health_max = 100,
+        magic = 100,
+        magic_max = 100,
 
--- Combat
-Player.attack        = 3      -- base attack used by every mode
-Player.unarmed_range = 1      -- body range (4-direction BFS steps)
-Player.mode          = "unarmed"   -- "unarmed" | "melee" | "ranged"
+        -- Combat
+        attack = 3,              -- base attack used by every mode
+        unarmed_range = 1,       -- body range (4-direction BFS steps)
+        mode = "unarmed",        -- "unarmed" | "melee" | "ranged"
 
-Player.inventory = {}
-Player.equipped  = { melee = nil, ranged = nil, armor = nil }  -- the player HAS equipment
+        inventory = {},
+        equipped = { melee = nil, ranged = nil, armor = nil },
+    }
+end
 
-return Player
+local default_state = Player.new_state()
+
+local function current_state()
+    local context = Context.current
+    return (context and context.player) or default_state
+end
+
+return setmetatable(Player, {
+    __index = function (_, key) return current_state()[key] end,
+    __newindex = function (_, key, value) current_state()[key] = value end,
+})

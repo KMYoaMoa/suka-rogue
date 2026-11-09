@@ -1,13 +1,10 @@
-local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
 local InputHandler = require "controllers.InputHandler"
-local DungeonGenerate = require "services.DungeonGenerate"
-local DungeonService = require "services.DungeonService"
-local RoomService = require "services.RoomService"
 local VisionService = require "services.VisionService"
 local CombatService = require "services.CombatService"
 local GameState       = require "models.GameState"
+local Game            = require "game.Game"
 
 local GameApplication = {}
 
@@ -21,28 +18,19 @@ local function run_turn()
     end
 end
 
-GameApplication.reset = function ()
-    CommandService.reset()
-    DungeonService.clear()
-    PlayerService.reset()
-    GameState.ticks = 0
-    GameState.state = "waiting"
-    GameState.selected_slot = nil
-    MessageService.clear()
+function GameApplication.reset()
+    GameApplication.game = GameApplication.game or Game.new()
+    GameApplication.game:reset()
 end
 
-GameApplication.init = function ()
-    GameApplication.reset()
-    DungeonGenerate.create(20, 3)
-    PlayerService.init()
-    RoomService.populate()
-
-    MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
-    VisionService.update()
-    CombatService.update_targets()
+function GameApplication.init(game)
+    GameApplication.game = game or GameApplication.game or Game.new()
+    GameApplication.game:init()
 end
 
 GameApplication.handle_key_press = function (key)
+    if not GameApplication.game then return end
+    GameApplication.game:activate()
     if GameState.state == "dead" then return end
     local action = InputHandler.handle_action(key)
 

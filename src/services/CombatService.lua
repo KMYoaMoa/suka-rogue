@@ -14,8 +14,21 @@ local DIRS4 = {
     {1, 0}, {-1, 0}, {0, 1}, {0, -1},
 }
 
-CombatService.targets    = {}   -- entities q would hit; also the view's highlight
-CombatService.target_set = {}   -- "x:y" -> true
+-- The target cache is per-Game. The module fields point at the active
+-- Game's tables so existing callers can keep reading CombatService.targets.
+local target_state = { targets = {}, target_set = {} }
+CombatService.targets    = target_state.targets
+CombatService.target_set = target_state.target_set
+
+function CombatService.new_state()
+    return { targets = {}, target_set = {} }
+end
+
+function CombatService.activate(state)
+    target_state = state
+    CombatService.targets = state.targets
+    CombatService.target_set = state.target_set
+end
 
 local function passable(x, y)
     return conf.is_pos_valid(x, y) and DungeonService.is_passable(x, y)
@@ -107,15 +120,20 @@ function CombatService.update_targets()
         end
     end
 
-    CombatService.targets = chosen
-    CombatService.target_set = {}
+    local targets = target_state.targets
+    local target_set = target_state.target_set
+    for i = #targets, 1, -1 do targets[i] = nil end
+    for key in pairs(target_set) do target_set[key] = nil end
     for _, e in ipairs(chosen) do
-        CombatService.target_set[e.x .. ":" .. e.y] = true
+        targets[#targets + 1] = e
+        target_set[e.x .. ":" .. e.y] = true
     end
+    CombatService.targets = targets
+    CombatService.target_set = target_set
 end
 
 function CombatService.is_target(x, y)
-    return CombatService.target_set[x .. ":" .. y] == true
+    return target_state.target_set[x .. ":" .. y] == true
 end
 
 function CombatService.attack_power()

@@ -15,6 +15,14 @@ local DEFAULT_TYPE = "info"
 
 local history = {}   -- ordered, oldest first
 
+function MessageService.new_state()
+    return { history = {} }
+end
+
+function MessageService.activate(state)
+    history = state.history
+end
+
 -- Append one message.
 --   text: the line to show (build it with string.format at the call site)
 --   type: a key of `types`; unknown/nil falls back to "info"
@@ -33,8 +41,9 @@ MessageService.recent = function (n)
     return out
 end
 
-
-MessageService.clear = function () history = {} end
+MessageService.clear = function ()
+    for i = #history, 1, -1 do history[i] = nil end
+end
 
 -- Colour an entry should be drawn in: explicit override, else its type's.
 MessageService.color_of = function (entry)

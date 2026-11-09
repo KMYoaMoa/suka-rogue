@@ -7,15 +7,31 @@ local CommandService = {}
 local schedule = {}   -- schedule[ticks] = list of invokers due at that tick
 local queue    = {}   -- the global command queue
 
+-- Per-Game scheduler state. Invokers capture the active tables when they are
+-- created; switching Games only changes which tables the module functions use.
+function CommandService.new_state()
+    return {
+        schedule = {},
+        queue = {},
+    }
+end
+
+function CommandService.activate(state)
+    schedule = state.schedule
+    queue = state.queue
+end
+
 function CommandService.new_invoker(name)
     local invoker = {name = name}
+    local invoker_schedule = schedule
+    local invoker_queue = queue
     invoker.trigger = nil -- constraint: instance should implement
     invoker.append_command = function (obj)
-        queue[#queue + 1] = obj
+        invoker_queue[#invoker_queue + 1] = obj
     end
     invoker.reschedule = function (at)
-        schedule[at] = schedule[at] or {}
-        schedule[at][#schedule[at] + 1] = invoker
+        invoker_schedule[at] = invoker_schedule[at] or {}
+        invoker_schedule[at][#invoker_schedule[at] + 1] = invoker
     end
     return invoker
 end
@@ -23,7 +39,7 @@ end
 local function drain_queue()
     while #queue > 0 do
         if GameState.state == "dead" then
-            queue = {}                               -- discard pending commands
+            for i = #queue, 1, -1 do queue[i] = nil end
             return
         end
         local cmd = table.remove(queue, 1)
@@ -47,8 +63,8 @@ CommandService.process = function ()
 end
 
 CommandService.reset = function ()
-    schedule = {}
-    queue = {}
+    for key in pairs(schedule) do schedule[key] = nil end
+    for i = #queue, 1, -1 do queue[i] = nil end
 end
 
 -- First tick at or after the current clock that has any invoker. In normal
