@@ -6,12 +6,12 @@ local PlayerModule       = require "modules.player"
 local Player            = PlayerModule.Player
 local GameState         = require "models.GameState"
 local CommandService    = require "services.CommandService"
-local MessageService    = require "services.MessageService"
+local MessageLog        = require "game.MessageLog"
 local CombatService     = require "modules.combat"
 local PlayerController  = PlayerModule.Controller
 local DungeonService    = require "services.DungeonService"
 local DungeonGenerate   = require "services.DungeonGenerate"
-local RoomService       = require "services.RoomService"
+local SpawnService      = require "game.SpawnService"
 local VisionService     = require "modules.vision"
 
 -- Game owns one run's state bundles. During the incremental refactor, legacy services
@@ -39,7 +39,7 @@ function Game.new(seed)
         player          = Player.new_state(),
         state           = state,
         scheduler       = Scheduler.new(clock),
-        messages        = MessageService.new_state(),
+        messages        = MessageLog.new_state(),
         combat          = CombatService.new_state(),
         player_invoker  = nil,
     }, Game)
@@ -48,7 +48,7 @@ end
 function Game:activate()
     Context.current = self
     CommandService.activate(self.scheduler)
-    MessageService.activate(self.messages)
+    MessageLog.activate(self.messages)
     CombatService.activate(self.combat)
 end
 
@@ -65,7 +65,7 @@ function Game:reset()
     self.state.selected_slot = nil
     self.player_invoker = nil
 
-    MessageService.clear()
+    MessageLog.clear()
 end
 
 function Game:init()
@@ -74,8 +74,8 @@ function Game:init()
     PlayerController.init()
     self.player_invoker = PlayerController.get_invoker()
 
-    RoomService.populate()
-    MessageService.add("Welcome, salvors. You descend into the ruins.", "info")
+    SpawnService.populate()
+    MessageLog.add("Welcome, salvors. You descend into the ruins.", "info")
     VisionService.update()
     CombatService.update_targets()
 end

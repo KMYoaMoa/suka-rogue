@@ -1,5 +1,5 @@
 local conf = require "conf"
-local msg = require "services.MessageService"
+local msg = require "game.MessageLog"
 
 local MessageView = {}
 
