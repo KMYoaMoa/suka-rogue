@@ -3,7 +3,7 @@ local PlayerController = PlayerModule.Controller
 local CommandService = require "services.CommandService"
 local InputHandler = require "controllers.InputHandler"
 local VisionService = require "services.VisionService"
-local CombatService = require "services.CombatService"
+local CombatService = require "modules.combat"
 local GameState       = require "models.GameState"
 local Game            = require "game.Game"
 

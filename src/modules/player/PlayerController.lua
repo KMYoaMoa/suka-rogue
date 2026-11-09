@@ -7,7 +7,7 @@ local World            = require "game.World"
 local CommandService   = require "services.CommandService"
 local InventoryService = require "services.InventoryService"
 local InventoryCommands = InventoryService.commands
-local CombatService    = require "services.CombatService"
+local CombatService    = require "modules.combat"
 local GameState        = require "models.GameState"
 
 local Controller = {}

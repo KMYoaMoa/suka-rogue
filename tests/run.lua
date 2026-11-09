@@ -8,6 +8,7 @@ local files = {
     "tests.test_player_module",
     "tests.test_items_module",
     "tests.test_actors_module",
+    "tests.test_combat_module",
     "tests.test_core",
 }
 
