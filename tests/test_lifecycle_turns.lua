@@ -5,7 +5,7 @@ local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local MobService = require "services.MobService"
-local PlayerService = require "services.PlayerService"
+local PlayerController = require "modules.player.PlayerController"
 local MessageService = require "services.MessageService"
 local Item = require "models.item.Item"
 local Game = require "game.Game"
@@ -22,18 +22,18 @@ t.test("init waits without consuming a tick; one movement input consumes one tic
     t.with_clean_world(function ()
         t.make_room(10, 10, 7, 7)
         Player.x, Player.y = 13, 13
-        PlayerService.init()
-        PlayerService.setPosition(13, 13)
+        PlayerController.init()
+        PlayerController.setPosition(13, 13)
         require("services.CommandService").reset()
-        PlayerService.invoker.reschedule(GameState.ticks + 1)
+        PlayerController.get_invoker().reschedule(GameState.ticks + 1)
         local before_x, before_y = Player.x, Player.y
         local before_ticks = GameState.ticks
-        PlayerService.move(1, 0)
-        PlayerService.invoker.trigger = function ()
+        PlayerController.move(1, 0)
+        PlayerController.get_invoker().trigger = function ()
             GameState.state = "waiting"
-            PlayerService.invoker.reschedule(GameState.ticks + 1)
+            PlayerController.get_invoker().reschedule(GameState.ticks + 1)
         end
-        PlayerService.invoker.reschedule(GameState.ticks)
+        PlayerController.get_invoker().reschedule(GameState.ticks)
         GameState.state = "running"
         require("services.CommandService").process()
         t.equal(GameState.ticks, before_ticks + 1)

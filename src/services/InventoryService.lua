@@ -3,28 +3,19 @@ local Item = require "models.item.Item"
 local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
 local MessageService = require "services.MessageService"
+local PlayerInventory = require "modules.player.Inventory"
 
 local InventoryService = {}
 local InventoryCommands = {}
 
--- Add an instance to the inventory; stackable same-type entries merge.
+-- Player-owned inventory operations now live in the player module. These
+-- remain as compatibility delegation for existing callers.
 InventoryService.add_item = function (item)
-    if Item.is_stackable(item) then
-        for _, entry in ipairs(Player.inventory) do
-            if entry.type == item.type then
-                entry.qty = entry.qty + item.qty
-                return
-            end
-        end
-    end
-    Player.inventory[#Player.inventory + 1] = item
+    return PlayerInventory.add_item(item)
 end
 
 InventoryService.remove_item = function (index)
-    local item = Player.inventory[index]
-    if not item then return nil end
-    table.remove(Player.inventory, index)
-    return item
+    return PlayerInventory.remove_item(index)
 end
 
 -- Ground items: the separate list (draft §3.5). Dungeon.items = { {x, y, item}, ... }
@@ -70,31 +61,22 @@ end
 
 InventoryCommands.equip = function (slot_index)
     return { execute = function ()
-        local item = Player.inventory[slot_index]
-        if not item or not Item.is_equippable(item) then
+        local ok, item = PlayerInventory.equip(slot_index)
+        if not ok then
             MessageService.add("You can't equip that.", "warning")
             return
         end
-        local slot = Item.def_of(item).kind               -- "melee" | "ranged" | "armor"
-        local old = Player.equipped[slot]
-        Player.equipped[slot] = item                      -- swap out
-        table.remove(Player.inventory, slot_index)
-        if old then InventoryService.add_item(old) end
         MessageService.add(string.format("You equip the %s.", item.type), "good")
     end }
 end
 
 InventoryCommands.use = function (slot_index)             -- base items
     return { execute = function ()
-        local item = Player.inventory[slot_index]
-        if not item or not Item.is_usable(item) then
+        local ok, item = PlayerInventory.use(slot_index)
+        if not ok then
             MessageService.add("You can't use that.", "warning")
             return
         end
-        local behavior = Item.behavior(item)
-        if behavior.use then behavior.use(item, Player) end
-        item.qty = item.qty - 1
-        if item.qty <= 0 then table.remove(Player.inventory, slot_index) end
         MessageService.add(string.format("You use the %s.", item.type), "info")
     end }
 end

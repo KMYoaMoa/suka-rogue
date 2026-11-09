@@ -1,5 +1,6 @@
 local CameraService  = require "services.CameraService"
-local PlayerService  = require "services.PlayerService"
+local PlayerModule = require "modules.player"
+local PlayerController = PlayerModule.Controller
 local Dungeon        = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local Palette        = require "models.dungeon.Palette"
@@ -17,7 +18,7 @@ local function set_color(c, factor)
 end
 
 CameraView.render = function ()
-    local player_x, player_y = PlayerService.getPosition()
+    local player_x, player_y = PlayerController.getPosition()
     CameraService.update(player_x, player_y)
     local camera_w, camera_h = CameraService.getDimensions()
     local next_tick = (GameState.state ~= "dead") and CommandService.next_tick() or nil

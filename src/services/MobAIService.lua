@@ -1,11 +1,12 @@
 local conf               = require "conf"
-local Player             = require "models.Player"
+local PlayerModule       = require "modules.player"
+local Player             = PlayerModule.Player
 local Mob                = require "models.mob.Mob"
 local Dungeon            = require "models.dungeon.Dungeon"
 local DungeonService     = require "services.DungeonService"
 local VisionService      = require "services.VisionService"
 local NpcService         = require "services.NpcService"
-local PlayerStatsService = require "services.PlayerStatsService"
+local PlayerStats = PlayerModule.Stats
 local MessageService     = require "services.MessageService"
 local Context            = require "game.Context"
 
@@ -248,7 +249,7 @@ end
 MobCommands.attack = function (mob, target)
     return { execute = function ()
         if target == Player then
-            PlayerStatsService.apply_damage(Mob.attack_of(mob), Mob.name(mob))
+            PlayerStats.apply_damage(Mob.attack_of(mob), Mob.name(mob))
         else
             if target.dead then return end
             local damage = Mob.attack_of(mob)

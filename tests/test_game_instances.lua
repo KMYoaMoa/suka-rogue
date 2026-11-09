@@ -4,7 +4,7 @@ local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
 local GameState = require "models.GameState"
 local MessageService = require "services.MessageService"
-local PlayerService = require "services.PlayerService"
+local PlayerController = require "modules.player.PlayerController"
 local CommandService = require "services.CommandService"
 local DungeonService = require "services.DungeonService"
 local conf = require "conf"
@@ -13,7 +13,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     local a = Game.new()
     a:activate()
     a:init()
-    local a_invoker = PlayerService.invoker
+    local a_invoker = PlayerController.get_invoker()
     Player.health = 37
     GameState.ticks = 7
     Dungeon.mobs[#Dungeon.mobs + 1] = { name = "A-SENTINEL", dead = false, x = -1, y = -1 }
@@ -22,14 +22,14 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     local b = Game.new()
     b:activate()
     b:init()
-    local b_invoker = PlayerService.invoker
+    local b_invoker = PlayerController.get_invoker()
     t.falsy(a.world == b.world)
     t.falsy(a.world.dungeon == b.world.dungeon)
     t.equal(Player.health, 100)
     t.equal(GameState.ticks, 0)
     t.equal(#MessageService.recent(), 1) -- welcome only
-    t.falsy(PlayerService.invoker == a_invoker)
-    t.truthy(PlayerService.invoker == b_invoker)
+    t.falsy(PlayerController.get_invoker() == a_invoker)
+    t.truthy(PlayerController.get_invoker() == b_invoker)
     for _, mob in ipairs(Dungeon.mobs) do
         t.falsy(mob.name == "A-SENTINEL")
     end
@@ -41,7 +41,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     a:activate()
     t.equal(Player.health, 37)
     t.equal(GameState.ticks, 7)
-    t.truthy(PlayerService.invoker == a_invoker)
+    t.truthy(PlayerController.get_invoker() == a_invoker)
     local has_a = false
     for _, entry in ipairs(MessageService.recent()) do
         if entry.text == "A only" then has_a = true end
@@ -57,7 +57,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     b:activate()
     t.equal(Player.health, 88)
     t.equal(GameState.ticks, 3)
-    t.truthy(PlayerService.invoker == b_invoker)
+    t.truthy(PlayerController.get_invoker() == b_invoker)
 end)
 
 t.test("re-initializing one Game clears its previous run without touching another Game", function ()

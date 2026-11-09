@@ -5,7 +5,7 @@ local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
 local GameState = require "models.GameState"
 local DungeonService = require "services.DungeonService"
-local PlayerService = require "services.PlayerService"
+local PlayerController = require "modules.player.PlayerController"
 local InventoryService = require "services.InventoryService"
 local CommandService = require "services.CommandService"
 local MessageService = require "services.MessageService"
@@ -18,7 +18,7 @@ t.test("pickup, equip, use, and drop update inventory and ground items", functio
         Player.x, Player.y = 13, 13
         local ground_medkit = Item.new("medkit")
         InventoryService.place_item(ground_medkit, Player.x, Player.y)
-        PlayerService.pickup()
+        PlayerController.pickup()
         GameState.state = "running"
         CommandService.process()
         t.equal(#Player.inventory, 1)
@@ -26,21 +26,21 @@ t.test("pickup, equip, use, and drop update inventory and ground items", functio
         t.equal(#Dungeon.items, 0)
 
         Player.inventory[#Player.inventory + 1] = Item.new("sword")
-        t.truthy(PlayerService.equip(2))
+        t.truthy(PlayerController.equip(2))
         GameState.state = "running"
         CommandService.process()
         t.equal(Player.equipped.melee.type, "Rusty Sword")
         t.equal(#Player.inventory, 1) -- medkit remains
 
         Player.health = 50
-        t.truthy(PlayerService.use(1))
+        t.truthy(PlayerController.use(1))
         GameState.state = "running"
         CommandService.process()
         t.equal(Player.health, 80)
         t.equal(#Player.inventory, 0)
 
         Player.inventory[1] = Item.new("coin")
-        t.truthy(PlayerService.drop(1))
+        t.truthy(PlayerController.drop(1))
         GameState.state = "running"
         CommandService.process()
         t.equal(#Player.inventory, 0)

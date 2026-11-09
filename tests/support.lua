@@ -32,13 +32,13 @@ end
 function support.with_clean_world(fn)
     local Game = require "game.Game"
     local DungeonGenerate = require "services.DungeonGenerate"
-    local PlayerService = require "services.PlayerService"
+    local PlayerController = require "modules.player.PlayerController"
 
     local game = Game.new(93017)
     game:activate()
     game:reset()
     DungeonGenerate.create(20, 3, game.rng)
-    PlayerService.init()
+    PlayerController.init()
 
     local ok, err = xpcall(fn, debug.traceback)
     if not ok then error(err, 0) end
