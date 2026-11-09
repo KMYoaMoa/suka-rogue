@@ -1,18 +1,17 @@
 local GameApplication = require "GameApplication"
-local CameraView = require "views.CameraView"
-local MessageView = require "views.MessageView"
-local PlayerStatusView = require "views.PlayerStatusView"
-local InventoryView    = require "views.InventoryView"
+local CameraView = require "ui.views.CameraView"
+local MessageView = require "ui.views.MessageView"
+local PlayerStatusView = require "ui.views.PlayerStatusView"
+local InventoryView    = require "ui.views.InventoryView"
+local Game             = require "game.Game"
 local conf = require "conf"
 
 function love.load()
-    math.randomseed(os.time())
-
     love.window.setTitle("Love RL")
     love.window.setMode(conf.SCREEN_WIDTH, conf.SCREEN_HEIGHT)
     love.keyboard.setKeyRepeat(true)
 
-    GameApplication.init()
+    GameApplication.init(Game.new())
 end
 
 function love.draw()

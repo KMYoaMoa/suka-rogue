@@ -1,0 +1,82 @@
+local Context           = require "game.Context"
+local World             = require "game.World"
+local Scheduler         = require "core.scheduler"
+local RNG               = require "core.rng"
+local PlayerModule       = require "modules.player"
+local Player            = PlayerModule.Player
+local GameState         = require "game.GameState"
+local MessageLog        = require "game.MessageLog"
+local CombatService     = require "modules.combat"
+local PlayerController  = PlayerModule.Controller
+local DungeonModule     = require "modules.dungeon"
+local DungeonService    = DungeonModule.Service
+local DungeonGenerate   = DungeonModule.Generator
+local SpawnService      = require "game.SpawnService"
+local VisionService     = require "modules.vision"
+
+-- Game owns one run's state bundles. During the incremental refactor, legacy services
+-- read the active bundle through module proxies; activation is the temporary
+-- compatibility boundary that later phases will replace with injection.
+local Game = {}
+Game.__index = Game
+
+function Game.new(seed)
+    local world = World.new()
+    local state = GameState.new_state()
+    local clock = {
+        get_tick = function () return state.ticks end,
+        set_tick = function (_, tick) state.ticks = tick end,
+        is_stopped = function ()
+            return state.state == "waiting" or state.state == "dead"
+        end,
+        is_dead = function () return state.state == "dead" end,
+    }
+    local run_seed = seed or os.time()
+    return setmetatable({
+        seed            = run_seed,
+        rng             = RNG.new(run_seed),
+        world           = world,
+        player          = Player.new_state(),
+        state           = state,
+        scheduler       = Scheduler.new(clock),
+        messages        = MessageLog.new_state(),
+        combat          = CombatService.new_state(),
+        player_invoker  = nil,
+    }, Game)
+end
+
+function Game:activate()
+    Context.current = self
+    MessageLog.activate(self.messages)
+    CombatService.activate(self.combat)
+end
+
+function Game:reset()
+    self:activate()
+    self.scheduler:clear()
+    self.rng = RNG.new(self.seed)
+    DungeonService.clear()
+    World.clear()
+    PlayerController.reset()
+
+    self.state.ticks = 0
+    self.state.state = "waiting"
+    self.state.selected_slot = nil
+    self.player_invoker = nil
+
+    MessageLog.clear()
+end
+
+function Game:init()
+    self:reset()
+    DungeonGenerate.create(20, 3, self.rng)
+    PlayerController.init()
+    self.player_invoker = PlayerController.get_invoker()
+
+    SpawnService.populate()
+    MessageLog.add("Welcome, salvors. You descend into the ruins.", "info")
+    VisionService.update()
+    CombatService.update_targets()
+end
+
+return Game
