@@ -2,7 +2,7 @@ local t = require "tests.support"
 local Game = require "game.Game"
 local Actors = require "modules.actors"
 local World = require "game.World"
-local Dungeon = require "models.dungeon.Dungeon"
+local Dungeon = require "modules.dungeon.model.Dungeon"
 
 t.test("actors facade exposes models, services, and the actor contract", function ()
     local game = Game.new(881)

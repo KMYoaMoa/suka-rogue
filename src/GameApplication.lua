@@ -1,7 +1,7 @@
 local Game = require "game.Game"
 local TurnController = require "game.TurnController"
-local InputHandler = require "controllers.InputHandler"
-local GameState = require "models.GameState"
+local InputHandler = require "ui.input.InputHandler"
+local GameState = require "game.GameState"
 
 -- Composition root/application adapter. Input mapping and turn rules live in
 -- the controller layer; this module only owns the active Game lifecycle.

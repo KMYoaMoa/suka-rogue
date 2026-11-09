@@ -31,7 +31,7 @@ end
 -- each test its own Game state bundle.
 function support.with_clean_world(fn)
     local Game = require "game.Game"
-    local DungeonGenerate = require "services.DungeonGenerate"
+    local DungeonGenerate = require "modules.dungeon.generation.DungeonGenerate"
     local PlayerController = require "modules.player.PlayerController"
 
     local game = Game.new(93017)
@@ -45,10 +45,10 @@ function support.with_clean_world(fn)
 end
 
 function support.make_room(x, y, width, height)
-    local Cell = require "models.dungeon.Cell"
-    local Tile = require "models.dungeon.Tile"
-    local Dungeon = require "models.dungeon.Dungeon"
-    local DungeonService = require "services.DungeonService"
+    local Cell = require "modules.dungeon.model.Cell"
+    local Tile = require "modules.dungeon.model.Tile"
+    local Dungeon = require "modules.dungeon.model.Dungeon"
+    local DungeonService = require "modules.dungeon.DungeonService"
 
     local room = Cell:new(x, y, width, height)
     Dungeon.rooms = { room }

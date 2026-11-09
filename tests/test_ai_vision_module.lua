@@ -2,7 +2,7 @@ local t = require "tests.support"
 local Game = require "game.Game"
 local AI = require "modules.ai"
 local Vision = require "modules.vision"
-local DungeonService = require "services.DungeonService"
+local DungeonService = require "modules.dungeon.DungeonService"
 local Player = require "modules.player.Player"
 
 t.test("AI and vision facades expose their systems and vision updates the map", function ()

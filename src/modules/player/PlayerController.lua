@@ -5,11 +5,10 @@ local MessageService   = require "services.MessageService"
 local DungeonModule    = require "modules.dungeon"
 local DungeonService   = DungeonModule.Service
 local World            = require "game.World"
-local CommandService   = require "services.CommandService"
-local InventoryService = require "services.InventoryService"
+local InventoryService = require "game.InventoryService"
 local InventoryCommands = InventoryService.commands
 local CombatService    = require "modules.combat"
-local GameState        = require "models.GameState"
+local GameState        = require "game.GameState"
 
 local Controller = {}
 local PlayerCommands = {}
@@ -37,7 +36,7 @@ function Controller.init()
         r.y_pos + math.floor(r.y_size / 2)
     )
 
-    local player_invoker = CommandService.new_invoker("Player")
+    local player_invoker = Context.current.scheduler:new_invoker("Player")
     player_invoker.trigger = function ()
         GameState.state = "waiting"
         player_invoker.reschedule(GameState.ticks + 1)

@@ -1,14 +1,15 @@
 local t = require "tests.support"
+local Context = require "game.Context"
 local World = require "game.World"
 local GameApplication = require "GameApplication"
-local GameState = require "models.GameState"
-local Player = require "models.Player"
-local Dungeon = require "models.dungeon.Dungeon"
-local DungeonService = require "services.DungeonService"
-local MobService = require "services.MobService"
+local GameState = require "game.GameState"
+local Player = require "modules.player.Player"
+local Dungeon = require "modules.dungeon.model.Dungeon"
+local DungeonService = require "modules.dungeon.DungeonService"
+local MobService = require "modules.actors.mob.MobService"
 local PlayerController = require "modules.player.PlayerController"
 local MessageService = require "services.MessageService"
-local Item = require "models.item.Item"
+local Item = require "modules.items.Item"
 local Game = require "game.Game"
 
 local function init_with_fixed_seed(seed)
@@ -25,7 +26,7 @@ t.test("init waits without consuming a tick; one movement input consumes one tic
         Player.x, Player.y = 13, 13
         PlayerController.init()
         PlayerController.setPosition(13, 13)
-        require("services.CommandService").reset()
+        Context.current.scheduler:clear()
         PlayerController.get_invoker().reschedule(GameState.ticks + 1)
         local before_x, before_y = Player.x, Player.y
         local before_ticks = GameState.ticks
@@ -36,7 +37,7 @@ t.test("init waits without consuming a tick; one movement input consumes one tic
         end
         PlayerController.get_invoker().reschedule(GameState.ticks)
         GameState.state = "running"
-        require("services.CommandService").process()
+        Context.current.scheduler:process()
         t.equal(GameState.ticks, before_ticks + 1)
         t.equal(GameState.state, "waiting")
         t.equal(Player.x, before_x + 1)
@@ -85,15 +86,15 @@ t.test("reset clears run state, world entities, messages, and scheduled invokers
     t.equal(#Dungeon.rooms, 0)
     t.equal(#World.current().mobs, 0)
     t.equal(#MessageService.recent(), 0)
-    t.equal(require("services.CommandService").next_tick(), nil)
+    t.equal(Context.current.scheduler:next_tick(), nil)
 end)
 
 t.test("death stops the scheduler before a later invoker can act", function ()
     t.with_clean_world(function ()
-        local CommandService = require "services.CommandService"
-        local PlayerStatsService = require "services.PlayerStatsService"
-        local first = CommandService.new_invoker("lethal")
-        local second = CommandService.new_invoker("must-not-run")
+        local scheduler = Context.current.scheduler
+        local PlayerStatsService = require "modules.player.Stats"
+        local first = scheduler:new_invoker("lethal")
+        local second = scheduler:new_invoker("must-not-run")
         local second_ran = false
         first.trigger = function ()
             first.append_command({ execute = function () PlayerStatsService.apply_damage(1, "test") end })
@@ -105,7 +106,7 @@ t.test("death stops the scheduler before a later invoker can act", function ()
         Player.health = 1
         Player.armor = 0
         GameState.state = "running"
-        CommandService.process()
+        scheduler:process()
         t.equal(GameState.state, "dead")
         t.falsy(second_ran)
     end)

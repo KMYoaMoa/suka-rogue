@@ -1,6 +1,6 @@
 
 local Items = require "modules.items"
-local Player = require "models.Player"
+local Player = require "modules.player.Player"
 local World = require "game.World"
 local MessageService = require "services.MessageService"
 local PlayerInventory = require "modules.player.Inventory"

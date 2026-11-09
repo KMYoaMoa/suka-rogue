@@ -1,4 +1,4 @@
-local Camera = require "models.Camera"
+local Camera = require "ui.camera.Camera"
 local DungeonModule = require "modules.dungeon"
 local DungeonService = DungeonModule.Service
 local Tile = DungeonModule.Tile

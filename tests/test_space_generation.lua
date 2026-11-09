@@ -1,13 +1,13 @@
 local t = require "tests.support"
 local World = require "game.World"
 local GameApplication = require "GameApplication"
-local Player = require "models.Player"
-local Dungeon = require "models.dungeon.Dungeon"
-local DungeonService = require "services.DungeonService"
-local MobService = require "services.MobService"
-local NpcService = require "services.NpcService"
-local ConstructService = require "services.ConstructService"
-local DungeonGenerate = require "services.DungeonGenerate"
+local Player = require "modules.player.Player"
+local Dungeon = require "modules.dungeon.model.Dungeon"
+local DungeonService = require "modules.dungeon.DungeonService"
+local MobService = require "modules.actors.mob.MobService"
+local NpcService = require "modules.actors.npc.NpcService"
+local ConstructService = require "modules.actors.construct.ConstructService"
+local DungeonGenerate = require "modules.dungeon.generation.DungeonGenerate"
 local RNG = require "core.rng"
 local conf = require "conf"
 
@@ -51,8 +51,8 @@ end)
 
 t.test("vision updates visible/discovered states while pure mob FOV leaves player state untouched", function ()
     t.with_clean_world(function ()
-        local VisionService = require "services.VisionService"
-        local Tile = require "models.dungeon.Tile"
+        local VisionService = require "modules.vision"
+        local Tile = require "modules.dungeon.model.Tile"
         t.make_room(10, 10, 7, 7)
         Player.x, Player.y = 13, 13
         local before_visible = DungeonService.getTile(13, 13).visible

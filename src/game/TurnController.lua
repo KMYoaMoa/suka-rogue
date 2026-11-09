@@ -1,15 +1,15 @@
 local PlayerController = require "modules.player.PlayerController"
-local CommandService   = require "services.CommandService"
+local Context          = require "game.Context"
 local VisionService    = require "modules.vision"
 local CombatService    = require "modules.combat"
-local GameState        = require "models.GameState"
+local GameState        = require "game.GameState"
 
 -- Coordinates one accepted intent into a turn, then refreshes read state.
 local TurnController = {}
 
 local function run_turn()
     GameState.state = "running"
-    CommandService.process()
+    Context.current.scheduler:process()
     if GameState.state ~= "dead" then
         VisionService.update()
         CombatService.update_targets()

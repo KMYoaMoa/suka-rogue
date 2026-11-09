@@ -15,7 +15,7 @@ t.test("combat facade resolves visible targets and applies attacks/death/drops",
     local mob = require "modules.actors".MobService.spawn("scavenger", 14, 13, room)
     t.truthy(mob)
     mob.health = 1
-    require "services.DungeonService".getTile(14, 13).visible = true
+    require "modules.dungeon.DungeonService".getTile(14, 13).visible = true
     Combat.update_targets()
     t.truthy(Combat.is_target(14, 13))
     t.equal(#Combat.targets, 1)

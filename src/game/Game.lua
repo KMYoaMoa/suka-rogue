@@ -4,8 +4,7 @@ local Scheduler         = require "core.scheduler"
 local RNG               = require "core.rng"
 local PlayerModule       = require "modules.player"
 local Player            = PlayerModule.Player
-local GameState         = require "models.GameState"
-local CommandService    = require "services.CommandService"
+local GameState         = require "game.GameState"
 local MessageLog        = require "game.MessageLog"
 local CombatService     = require "modules.combat"
 local PlayerController  = PlayerModule.Controller
@@ -48,7 +47,6 @@ end
 
 function Game:activate()
     Context.current = self
-    CommandService.activate(self.scheduler)
     MessageLog.activate(self.messages)
     CombatService.activate(self.combat)
 end

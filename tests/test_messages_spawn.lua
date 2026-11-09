@@ -3,10 +3,10 @@ local Game = require "game.Game"
 local MessageLog = require "game.MessageLog"
 local SpawnService = require "game.SpawnService"
 local World = require "game.World"
-local Dungeon = require "models.dungeon.Dungeon"
-local Cell = require "models.dungeon.Cell"
-local Tile = require "models.dungeon.Tile"
-local DungeonService = require "services.DungeonService"
+local Dungeon = require "modules.dungeon.model.Dungeon"
+local Cell = require "modules.dungeon.model.Cell"
+local Tile = require "modules.dungeon.model.Tile"
+local DungeonService = require "modules.dungeon.DungeonService"
 
 t.test("message log is game-owned and resets with the Game", function ()
     local game = Game.new(1301)

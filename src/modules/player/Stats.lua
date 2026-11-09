@@ -1,5 +1,5 @@
 local Player         = require "modules.player.Player"
-local GameState      = require "models.GameState"
+local GameState      = require "game.GameState"
 local MessageService = require "services.MessageService"
 
 local Stats = {}

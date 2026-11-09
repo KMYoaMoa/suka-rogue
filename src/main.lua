@@ -1,8 +1,8 @@
 local GameApplication = require "GameApplication"
-local CameraView = require "views.CameraView"
-local MessageView = require "views.MessageView"
-local PlayerStatusView = require "views.PlayerStatusView"
-local InventoryView    = require "views.InventoryView"
+local CameraView = require "ui.views.CameraView"
+local MessageView = require "ui.views.MessageView"
+local PlayerStatusView = require "ui.views.PlayerStatusView"
+local InventoryView    = require "ui.views.InventoryView"
 local Game             = require "game.Game"
 local conf = require "conf"
 

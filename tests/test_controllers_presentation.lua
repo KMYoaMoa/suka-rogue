@@ -1,13 +1,13 @@
 local t = require "tests.support"
 local Game = require "game.Game"
 local GameApplication = require "GameApplication"
-local InputHandler = require "controllers.InputHandler"
+local InputHandler = require "ui.input.InputHandler"
 local TurnController = require "game.TurnController"
 local Presentation = require "game.Presentation"
 local World = require "game.World"
 local Items = require "modules.items"
 local Player = require "modules.player.Player"
-local GameState = require "models.GameState"
+local GameState = require "game.GameState"
 
 t.test("input handler emits structured intents", function ()
     local move = InputHandler.intent("l")

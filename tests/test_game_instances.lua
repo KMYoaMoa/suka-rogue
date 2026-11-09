@@ -1,13 +1,12 @@
 local t = require "tests.support"
 local World = require "game.World"
 local Game = require "game.Game"
-local Player = require "models.Player"
-local Dungeon = require "models.dungeon.Dungeon"
-local GameState = require "models.GameState"
+local Player = require "modules.player.Player"
+local Dungeon = require "modules.dungeon.model.Dungeon"
+local GameState = require "game.GameState"
 local MessageService = require "services.MessageService"
 local PlayerController = require "modules.player.PlayerController"
-local CommandService = require "services.CommandService"
-local DungeonService = require "services.DungeonService"
+local DungeonService = require "modules.dungeon.DungeonService"
 local conf = require "conf"
 
 t.test("two Game instances keep player, world, tick, scheduler, and message state separate", function ()
@@ -97,16 +96,16 @@ t.test("scheduler queries follow the active Game", function ()
     local a = Game.new()
     a:activate()
     a:init()
-    local a_next = CommandService.next_tick()
+    local a_next = a.scheduler:next_tick()
     t.equal(a_next, 1)
 
     local b = Game.new()
     b:activate()
     b:init()
-    t.equal(CommandService.next_tick(), 1)
+    t.equal(b.scheduler:next_tick(), 1)
 
     a:activate()
-    t.equal(CommandService.next_tick(), 1)
+    t.equal(a.scheduler:next_tick(), 1)
 end)
 
 t.test("the same Game seed produces the same generated world", function ()

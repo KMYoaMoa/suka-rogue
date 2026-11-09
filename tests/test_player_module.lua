@@ -1,7 +1,7 @@
 local t = require "tests.support"
 local Game = require "game.Game"
 local PlayerModule = require "modules.player"
-local Item = require "models.item.Item"
+local Item = require "modules.items.Item"
 
 t.test("player module facade owns the aggregate, inventory, stats, and controller", function ()
     local game = Game.new(551)

@@ -3,10 +3,10 @@ local Items            = require "modules.items"
 local World            = require "game.World"
 local DungeonModule    = require "modules.dungeon"
 local DungeonService   = DungeonModule.Service
-local CommandService   = require "services.CommandService"
+local Context          = require "game.Context"
 local MobAIService     = require "modules.ai"
 local MessageService   = require "services.MessageService"
-local GameState        = require "models.GameState"
+local GameState        = require "game.GameState"
 
 local MobService = {}
 
@@ -35,7 +35,7 @@ MobService.spawn = function (type_name, x, y, room)
 
     -- Register with the tick scheduler. The trigger stays stable; the AI body
     -- is MobService.act.
-    mob.invoker = CommandService.new_invoker("Mob:" .. Mob.name(mob))
+    mob.invoker = Context.current.scheduler:new_invoker("Mob:" .. Mob.name(mob))
     mob.invoker.trigger = function () MobService.act(mob) end
     mob.invoker.reschedule(GameState.ticks + Mob.def_of(mob).stats.speed)
 

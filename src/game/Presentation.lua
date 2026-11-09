@@ -5,10 +5,10 @@ local Items          = require "modules.items"
 local DungeonModule  = require "modules.dungeon"
 local VisionService  = require "modules.vision"
 local CombatService  = require "modules.combat"
-local CommandService = require "services.CommandService"
+local Context = require "game.Context"
 local World          = require "game.World"
 local MessageLog     = require "game.MessageLog"
-local GameState      = require "models.GameState"
+local GameState      = require "game.GameState"
 
 local Player = PlayerModule.Player
 local Presentation = {}
@@ -84,11 +84,11 @@ end
 
 function Presentation.next_tick()
     if GameState.state == "dead" then return nil end
-    return CommandService.next_tick()
+    return Context.current.scheduler:next_tick()
 end
 
 function Presentation.is_scheduled(invoker, tick)
-    return CommandService.is_scheduled(invoker, tick)
+    return Context.current.scheduler:is_scheduled(invoker, tick)
 end
 
 function Presentation.is_next_actor(occupant, tick)
@@ -96,7 +96,7 @@ function Presentation.is_next_actor(occupant, tick)
         and occupant.def
         and occupant.def.kind == "enemy"
         and occupant.invoker
-        and CommandService.is_scheduled(occupant.invoker, tick)
+        and Context.current.scheduler:is_scheduled(occupant.invoker, tick)
         or false
 end
 
