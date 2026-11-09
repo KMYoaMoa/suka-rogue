@@ -1,10 +1,11 @@
 local conf           = require "conf"
 local Player         = require "models.Player"
-local Mob            = require "models.mob.Mob"
+local Actors         = require "modules.actors"
 local World          = require "game.World"
 local DungeonService = require "services.DungeonService"
-local MobService     = require "services.MobService"
-local NpcService     = require "services.NpcService"
+local MobService     = Actors.MobService
+local NpcService     = Actors.NpcService
+local Mob            = Actors.Mob
 local MessageService = require "services.MessageService"
 local Context        = require "game.Context"
 

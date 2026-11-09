@@ -3,9 +3,10 @@ local World            = require "game.World"
 local RoomType         = require "models.dungeon.RoomType"
 local DungeonService   = require "services.DungeonService"
 local InventoryService = require "services.InventoryService"
-local MobService       = require "services.MobService"
-local NpcService       = require "services.NpcService"
-local ConstructService = require "services.ConstructService"
+local Actors           = require "modules.actors"
+local MobService       = Actors.MobService
+local NpcService       = Actors.NpcService
+local ConstructService = Actors.ConstructService
 local Context          = require "game.Context"
 
 local function random(...)

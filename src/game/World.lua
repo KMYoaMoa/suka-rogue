@@ -2,6 +2,7 @@ local Context         = require "game.Context"
 local Dungeon         = require "models.dungeon.Dungeon"
 local DungeonService  = require "services.DungeonService"
 local Player          = require "modules.player.Player"
+local Actor           = require "modules.actors.Actor"
 
 -- World owns the spatial/run state: the map, actors, and ground items.
 -- Occupancy is composed from map passability and live occupant positions.
@@ -34,9 +35,7 @@ end
 
 local function scan(list, x, y)
     for _, actor in ipairs(list) do
-        if not actor.dead and actor.x == x and actor.y == y then
-            return actor
-        end
+        if Actor.at(actor, x, y) then return actor end
     end
     return nil
 end
@@ -45,7 +44,7 @@ end
 -- The player, mobs, NPCs, and constructs block; ground items do not.
 function World.occupant_at(x, y)
     local world = World.current()
-    if Player.x == x and Player.y == y then return Player end
+    if Actor.at(Player, x, y) then return Player end
     return scan(world.mobs, x, y)
         or scan(world.npcs, x, y)
         or scan(world.constructs, x, y)
