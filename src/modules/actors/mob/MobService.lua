@@ -3,7 +3,7 @@ local Items            = require "modules.items"
 local World            = require "game.World"
 local DungeonService   = require "services.DungeonService"
 local CommandService   = require "services.CommandService"
-local MobAIService     = require "services.MobAIService"
+local MobAIService     = require "modules.ai"
 local MessageService   = require "services.MessageService"
 local GameState        = require "models.GameState"
 

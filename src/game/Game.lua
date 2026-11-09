@@ -12,7 +12,7 @@ local PlayerController  = PlayerModule.Controller
 local DungeonService    = require "services.DungeonService"
 local DungeonGenerate   = require "services.DungeonGenerate"
 local RoomService       = require "services.RoomService"
-local VisionService     = require "services.VisionService"
+local VisionService     = require "modules.vision"
 
 -- Game owns one run's state bundles. During the incremental refactor, legacy services
 -- read the active bundle through module proxies; activation is the temporary
