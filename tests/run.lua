@@ -6,6 +6,7 @@ local files = {
     "tests.test_inventory_combat",
     "tests.test_game_instances",
     "tests.test_player_module",
+    "tests.test_items_module",
     "tests.test_core",
 }
 

@@ -56,4 +56,32 @@ function World.is_free(x, y)
        and World.occupant_at(x, y) == nil
 end
 
+-- Ground-item queries. Items may share a tile; they never block movement.
+function World.place_item(item, x, y)
+    local items = World.current().items
+    items[#items + 1] = { x = x, y = y, item = item }
+end
+
+function World.items_at(x, y)
+    local out = {}
+    for _, entry in ipairs(World.current().items) do
+        if entry.x == x and entry.y == y then out[#out + 1] = entry end
+    end
+    return out
+end
+
+function World.take_items_at(x, y)
+    local world = World.current()
+    local taken, keep = {}, {}
+    for _, entry in ipairs(world.items) do
+        if entry.x == x and entry.y == y then
+            taken[#taken + 1] = entry
+        else
+            keep[#keep + 1] = entry
+        end
+    end
+    world.items = keep
+    return taken
+end
+
 return World

@@ -7,7 +7,7 @@ local VisionService  = require "services.VisionService"
 local CombatService  = require "services.CombatService"
 local CommandService = require "services.CommandService"
 local GameState      = require "models.GameState"
-local Item           = require "models.item.Item"
+local Items          = require "modules.items"
 local conf           = require "conf"
 
 local CameraView = {}
@@ -69,8 +69,8 @@ CameraView.render = function ()
                         end
                     end
                     if item then
-                        set_color(Item.color(item.item), 1)
-                        love.graphics.print(Item.glyph(item.item), transform)
+                        set_color(Items.Item.color(item.item), 1)
+                        love.graphics.print(Items.Item.glyph(item.item), transform)
                         love.graphics.setColor(1, 1, 1)
                     else
                         local c = Palette.color_for(tile.biome, tile.type) or tile.def.color

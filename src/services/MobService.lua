@@ -1,5 +1,5 @@
 local Mob              = require "models.mob.Mob"
-local Item             = require "models.item.Item"
+local Items            = require "modules.items"
 local World            = require "game.World"
 local DungeonService   = require "services.DungeonService"
 local CommandService   = require "services.CommandService"
@@ -30,7 +30,7 @@ MobService.spawn = function (type_name, x, y, room)
 
     -- Composition: the mob HAS equipment, built from the same Item registry.
     for slot, item_type in pairs(Mob.def_of(mob).equipment) do
-        mob.equipped[slot] = Item.new(item_type)
+        mob.equipped[slot] = Items.Item.new(item_type)
     end
 
     -- Register with the tick scheduler. The trigger stays stable; the AI body
@@ -64,7 +64,7 @@ MobService.kill = function (mob)
     mob.dead = true
     MessageService.add(string.format("The %s dies.", Mob.name(mob)), "good")
     for _, drop in ipairs(Mob.def_of(mob).drops) do
-        local item = Item.new(drop.type)
+        local item = Items.Item.new(drop.type)
         item.qty = drop.qty or 1
         InventoryService.place_item(item, mob.x, mob.y)
     end

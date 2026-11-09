@@ -2,7 +2,7 @@
 -- pattern) and one *instance* per concrete creature on the map.
 local Mob = {}
 
-local Item = require "models.item.Item"
+local Item = require "modules.items.Item"
 
 -- Shared per-type definitions. Keyed by type name.
 --   kind:      "enemy" today (beasts will be a tag, not a different kind)

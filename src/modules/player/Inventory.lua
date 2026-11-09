@@ -1,5 +1,8 @@
-local Item   = require "models.item.Item"
+local Items  = require "modules.items"
 local Player = require "modules.player.Player"
+
+local Item = Items.Item
+local Rules = Items.Rules
 
 -- Player-owned inventory/equipment rules. Ground-item placement and pickup
 -- commands remain in the legacy InventoryService until the items/world split.
@@ -38,7 +41,7 @@ end
 function Inventory.use(index)
     local item = Player.inventory[index]
     if not item or not Item.is_usable(item) then return false end
-    local behavior = Item.behavior(item)
+    local behavior = Rules.behavior(item)
     if behavior.use then behavior.use(item, Player) end
     item.qty = item.qty - 1
     if item.qty <= 0 then table.remove(Player.inventory, index) end

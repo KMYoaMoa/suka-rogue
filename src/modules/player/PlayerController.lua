@@ -1,6 +1,6 @@
 local Context          = require "game.Context"
 local Player           = require "modules.player.Player"
-local Item             = require "models.item.Item"
+local Items            = require "modules.items"
 local MessageService   = require "services.MessageService"
 local DungeonService   = require "services.DungeonService"
 local World            = require "game.World"
@@ -86,7 +86,7 @@ end
 
 function Controller.equip(i)
     local item = Player.inventory[i]
-    if not item or not Item.is_equippable(item) then
+    if not item or not Items.Item.is_equippable(item) then
         MessageService.add("You can't equip that.", "warning")
         return false
     end
@@ -96,7 +96,7 @@ end
 
 function Controller.use(i)
     local item = Player.inventory[i]
-    if not item or not Item.is_usable(item) then
+    if not item or not Items.Item.is_usable(item) then
         MessageService.add("You can't use that.", "warning")
         return false
     end

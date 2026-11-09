@@ -1,5 +1,5 @@
 
-local Item = require "models.item.Item"
+local Items = require "modules.items"
 local Player = require "models.Player"
 local World = require "game.World"
 local MessageService = require "services.MessageService"
@@ -23,18 +23,13 @@ end
 -- (e.g. the dropped one) so the same entry keeps its identity and qty.
 InventoryService.place_item = function (type_name_or_item, x, y)
     local item = type(type_name_or_item) == "string"
-        and Item.new(type_name_or_item)
+        and Items.Item.new(type_name_or_item)
         or type_name_or_item
-    local items = World.current().items
-    items[#items + 1] = { x = x, y = y, item = item }
+    World.place_item(item, x, y)
 end
 
 InventoryService.items_at = function (x, y)
-    local out = {}
-    for _, g in ipairs(World.current().items) do
-        if g.x == x and g.y == y then out[#out + 1] = g end
-    end
-    return out
+    return World.items_at(x, y)
 end
 
 -- --- commands (appended to the player invoker; one tick each) ---
@@ -45,13 +40,7 @@ InventoryCommands.pickup = function ()
             MessageService.add("There is nothing here.", "info")
             return
         end
-        local keep = {}
-        for _, g in ipairs(World.current().items) do
-            if g.x ~= Player.x or g.y ~= Player.y then
-                keep[#keep + 1] = g
-            end
-        end
-        World.current().items = keep
+        World.take_items_at(Player.x, Player.y)
         for _, g in ipairs(grounded) do
             InventoryService.add_item(g.item)
             MessageService.add(string.format("You pick up %d %s.", g.item.qty, g.item.type),
