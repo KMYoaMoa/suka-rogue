@@ -1,4 +1,5 @@
 local t = require "tests.support"
+local World = require "game.World"
 local Cell = require "models.dungeon.Cell"
 local Item = require "models.item.Item"
 local Player = require "models.Player"
@@ -23,7 +24,7 @@ t.test("pickup, equip, use, and drop update inventory and ground items", functio
         CommandService.process()
         t.equal(#Player.inventory, 1)
         t.equal(Player.inventory[1], ground_medkit)
-        t.equal(#Dungeon.items, 0)
+        t.equal(#World.current().items, 0)
 
         Player.inventory[#Player.inventory + 1] = Item.new("sword")
         t.truthy(PlayerController.equip(2))
@@ -61,8 +62,8 @@ t.test("model-derived mob stats and combat damage/death/drop behavior", function
         mob.health = 1
         CombatService.hit(mob, 1)
         t.equal(mob.dead, true)
-        t.equal(#Dungeon.mobs, 0)
-        t.equal(#Dungeon.items, 2)
+        t.equal(#World.current().mobs, 0)
+        t.equal(#World.current().items, 2)
     end)
 end)
 
@@ -109,6 +110,6 @@ t.test("mob acts on its configured scheduler cadence and pursues without overlap
         CommandService.process()
         t.equal(mob.x, 14) -- adjacent; attacks instead of stepping onto player
         t.equal(Player.armor, 99)
-        t.equal(DungeonService.occupant_at(Player.x, Player.y), Player)
+        t.equal(World.occupant_at(Player.x, Player.y), Player)
     end)
 end)

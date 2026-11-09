@@ -2,7 +2,7 @@ local conf               = require "conf"
 local PlayerModule       = require "modules.player"
 local Player             = PlayerModule.Player
 local Mob                = require "models.mob.Mob"
-local Dungeon            = require "models.dungeon.Dungeon"
+local World              = require "game.World"
 local DungeonService     = require "services.DungeonService"
 local VisionService      = require "services.VisionService"
 local NpcService         = require "services.NpcService"
@@ -62,7 +62,7 @@ local function select_target(mob, visible)
     if visible[key(Player.x, Player.y)] then return Player end
 
     local candidates = {}
-    for _, npc in ipairs(Dungeon.npcs) do
+    for _, npc in ipairs(World.current().npcs) do
         if not npc.dead and visible[key(npc.x, npc.y)] then
             candidates[#candidates + 1] = npc
         end
@@ -111,7 +111,7 @@ local function path_step(mob, gx, gy, allow_goal_occupied)
             local nk = key(nx, ny)
             if parent[nk] == nil and passable(nx, ny) then
                 local is_goal = (nk == goal_k)
-                local blocked = DungeonService.occupant_at(nx, ny) ~= nil
+                local blocked = World.occupant_at(nx, ny) ~= nil
                 if not blocked or (is_goal and allow_goal_occupied) then
                     parent[nk] = k
                     queue[#queue + 1] = { nx, ny }
@@ -134,7 +134,7 @@ local function path_step_to_room(mob, room)
         local x, y = queue[head][1], queue[head][2]; head = head + 1
         local k = key(x, y)
 
-        if k ~= start_k and in_room(room, x, y) and DungeonService.is_free(x, y) then
+        if k ~= start_k and in_room(room, x, y) and World.is_free(x, y) then
             local cur = k
             while parent[cur] and parent[cur] ~= start_k do
                 cur = parent[cur]
@@ -148,7 +148,7 @@ local function path_step_to_room(mob, room)
             local nx, ny = x + d[1], y + d[2]
             local nk = key(nx, ny)
             if parent[nk] == nil and passable(nx, ny)
-               and DungeonService.occupant_at(nx, ny) == nil then
+               and World.occupant_at(nx, ny) == nil then
                 parent[nk] = k
                 queue[#queue + 1] = { nx, ny }
             end
@@ -203,7 +203,7 @@ local function wander_act(mob, territory_only)
 
     local nx, ny = mob.x + ai.dir[1], mob.y + ai.dir[2]
     local outside = territory_only and not in_room(ai.territory, nx, ny)
-    if not DungeonService.is_free(nx, ny) or outside then
+    if not World.is_free(nx, ny) or outside then
         ai.dir, ai.steps_left, ai.wait = nil, 0, 2
         return "loop"                                  -- interrupted
     end
@@ -240,7 +240,7 @@ end
 MobCommands.move = function (mob, dx, dy)
     return { execute = function ()
         local nx, ny = mob.x + dx, mob.y + dy
-        if DungeonService.is_free(nx, ny) then
+        if World.is_free(nx, ny) then
             mob.x, mob.y = nx, ny
         end
     end }

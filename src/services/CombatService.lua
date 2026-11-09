@@ -1,7 +1,7 @@
 local conf           = require "conf"
 local Player         = require "models.Player"
 local Mob            = require "models.mob.Mob"
-local Dungeon        = require "models.dungeon.Dungeon"
+local World          = require "game.World"
 local DungeonService = require "services.DungeonService"
 local MobService     = require "services.MobService"
 local NpcService     = require "services.NpcService"
@@ -44,8 +44,9 @@ local function visible_targets()
             end
         end
     end
-    add(Dungeon.mobs)
-    add(Dungeon.npcs)
+    local world = World.current()
+    add(world.mobs)
+    add(world.npcs)
     return out
 end
 

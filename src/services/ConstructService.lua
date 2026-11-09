@@ -1,12 +1,12 @@
 local Construct        = require "models.construct.Construct"
-local Dungeon          = require "models.dungeon.Dungeon"
+local World            = require "game.World"
 local DungeonService   = require "services.DungeonService"
 local NpcService       = require "services.NpcService"
 
 local ConstructService = {}
 
 ConstructService.can_spawn_at = function (x, y)
-    return DungeonService.is_free(x, y)
+    return World.is_free(x, y)
        and not DungeonService.is_entrance(x, y)
 end
 
@@ -14,7 +14,7 @@ ConstructService.spawn = function (type_name, x, y, room)
     if not ConstructService.can_spawn_at(x, y) then return nil end
     local construct = Construct.new(type_name)
     construct.x, construct.y, construct.room = x, y, room
-    Dungeon.constructs[#Dungeon.constructs + 1] = construct
+    World.current().constructs[#World.current().constructs + 1] = construct
     return construct
 end
 

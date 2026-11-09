@@ -1,5 +1,4 @@
 local Dungeon = require "models.dungeon.Dungeon"
-local Player = require "models.Player"
 local conf = require "conf"
 local Tile = require "models.dungeon.Tile"
 
@@ -19,10 +18,6 @@ end
 DungeonService.clear = function ()
     Dungeon.rooms = {}
     Dungeon.paths = {}
-    Dungeon.items = {}
-    Dungeon.mobs = {}
-    Dungeon.npcs = {}
-    Dungeon.constructs = {}
     DungeonService.iterate({
         before = function (x) Dungeon[x] = {} end,
         during = function (x, y) DungeonService.setTile("void", x, y) end
@@ -122,35 +117,6 @@ DungeonService.is_entrance = function (x, y)
         end
     end
     return false
-end
-
--- One scan helper; avoids a list-of-lists allocation per call
--- (CameraView calls this per visible tile per frame).
-local function scan(list, x, y)
-    for _, actor in ipairs(list) do
-        if not actor.dead and actor.x == x and actor.y == y then
-            return actor
-        end
-    end
-    return nil
-end
-
--- The first live occupant standing on (x, y), or nil.
--- Occupant contract: x, y, name, glyph, color, and optional `dead`.
--- The player, mobs, NPCs and constructs all block; items do not (they render
--- separately). This keeps movement and spawn checks on one invariant.
-DungeonService.occupant_at = function (x, y)
-    if Player.x == x and Player.y == y then return Player end
-    return scan(Dungeon.mobs, x, y)
-        or scan(Dungeon.npcs, x, y)
-        or scan(Dungeon.constructs, x, y)
-end
-
--- A tile a creature may enter: in bounds, passable terrain, unoccupied.
-DungeonService.is_free = function (x, y)
-    return conf.is_pos_valid(x, y)
-       and DungeonService.is_passable(x, y)
-       and DungeonService.occupant_at(x, y) == nil
 end
 
 return DungeonService

@@ -1,4 +1,5 @@
 local t = require "tests.support"
+local World = require "game.World"
 local GameApplication = require "GameApplication"
 local GameState = require "models.GameState"
 local Player = require "models.Player"
@@ -72,7 +73,7 @@ t.test("reset clears run state, world entities, messages, and scheduled invokers
     init_with_fixed_seed(104)
     local room = DungeonService.getSpawnRoom()
     local x, y = room.x_pos + 1, room.y_pos + 1
-    if not DungeonService.is_free(x, y) then
+    if not World.is_free(x, y) then
         x, y = room.x_pos_end() - 1, room.y_pos_end() - 1
     end
     local mob = MobService.spawn("unknown", x, y, room)
@@ -82,7 +83,7 @@ t.test("reset clears run state, world entities, messages, and scheduled invokers
     t.equal(GameState.ticks, 0)
     t.equal(GameState.state, "waiting")
     t.equal(#Dungeon.rooms, 0)
-    t.equal(#Dungeon.mobs, 0)
+    t.equal(#World.current().mobs, 0)
     t.equal(#MessageService.recent(), 0)
     t.equal(require("services.CommandService").next_tick(), nil)
 end)

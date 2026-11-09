@@ -1,7 +1,7 @@
 
 local Item = require "models.item.Item"
 local Player = require "models.Player"
-local Dungeon = require "models.dungeon.Dungeon"
+local World = require "game.World"
 local MessageService = require "services.MessageService"
 local PlayerInventory = require "modules.player.Inventory"
 
@@ -18,19 +18,20 @@ InventoryService.remove_item = function (index)
     return PlayerInventory.remove_item(index)
 end
 
--- Ground items: the separate list (draft §3.5). Dungeon.items = { {x, y, item}, ... }
+-- Ground items are owned by World.
 -- Accepts a type name (creates a fresh instance) or a ready item instance
 -- (e.g. the dropped one) so the same entry keeps its identity and qty.
 InventoryService.place_item = function (type_name_or_item, x, y)
     local item = type(type_name_or_item) == "string"
         and Item.new(type_name_or_item)
         or type_name_or_item
-    Dungeon.items[#Dungeon.items + 1] = { x = x, y = y, item = item }
+    local items = World.current().items
+    items[#items + 1] = { x = x, y = y, item = item }
 end
 
 InventoryService.items_at = function (x, y)
     local out = {}
-    for _, g in ipairs(Dungeon.items) do
+    for _, g in ipairs(World.current().items) do
         if g.x == x and g.y == y then out[#out + 1] = g end
     end
     return out
@@ -45,12 +46,12 @@ InventoryCommands.pickup = function ()
             return
         end
         local keep = {}
-        for _, g in ipairs(Dungeon.items) do
+        for _, g in ipairs(World.current().items) do
             if g.x ~= Player.x or g.y ~= Player.y then
                 keep[#keep + 1] = g
             end
         end
-        Dungeon.items = keep
+        World.current().items = keep
         for _, g in ipairs(grounded) do
             InventoryService.add_item(g.item)
             MessageService.add(string.format("You pick up %d %s.", g.item.qty, g.item.type),

@@ -1,18 +1,13 @@
 local Context = require "game.Context"
 
--- Per-run dungeon/world storage. The module proxies the active Game's
--- dungeon bundle so current services can keep using Dungeon[x][y] and the
--- collection fields while separate Games keep separate state.
+-- Per-run map data. Actor/item collections and occupancy belong to World,
+-- not to the Dungeon map model.
 local Dungeon = {}
 
 function Dungeon.new_state()
     return {
         rooms = {},
         paths = {},
-        items = {},
-        mobs = {},
-        npcs = {},
-        constructs = {},
     }
 end
 
@@ -20,7 +15,7 @@ local default_state = Dungeon.new_state()
 
 local function current_state()
     local context = Context.current
-    return (context and context.dungeon) or default_state
+    return (context and context.world and context.world.dungeon) or default_state
 end
 
 return setmetatable(Dungeon, {

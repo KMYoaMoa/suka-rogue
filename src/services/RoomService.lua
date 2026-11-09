@@ -1,4 +1,5 @@
 local Dungeon          = require "models.dungeon.Dungeon"
+local World            = require "game.World"
 local RoomType         = require "models.dungeon.RoomType"
 local DungeonService   = require "services.DungeonService"
 local InventoryService = require "services.InventoryService"
@@ -21,7 +22,7 @@ local MAX_TRIES = 50
 -- (including the player), and no existing item. When `avoid_entrance` is true
 -- (immovable NPCs/constructs), room entrance/exit tiles are excluded too.
 RoomService.tile_available = function (x, y, avoid_entrance)
-    return DungeonService.is_free(x, y)
+    return World.is_free(x, y)
        and #InventoryService.items_at(x, y) == 0
        and not (avoid_entrance and DungeonService.is_entrance(x, y))
 end

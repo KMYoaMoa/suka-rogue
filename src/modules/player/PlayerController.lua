@@ -3,6 +3,7 @@ local Player           = require "modules.player.Player"
 local Item             = require "models.item.Item"
 local MessageService   = require "services.MessageService"
 local DungeonService   = require "services.DungeonService"
+local World            = require "game.World"
 local CommandService   = require "services.CommandService"
 local InventoryService = require "services.InventoryService"
 local InventoryCommands = InventoryService.commands
@@ -66,10 +67,10 @@ PlayerCommands.move = function (dx, dy)
     return { execute = function ()
         local new_x = Player.x + dx
         local new_y = Player.y + dy
-        if DungeonService.is_free(new_x, new_y) then
+        if World.is_free(new_x, new_y) then
             Player.x, Player.y = new_x, new_y
         else
-            local occupant = DungeonService.occupant_at(new_x, new_y)
+            local occupant = World.occupant_at(new_x, new_y)
             if occupant then
                 MessageService.add(
                     string.format("The %s blocks your way.", occupant.name),

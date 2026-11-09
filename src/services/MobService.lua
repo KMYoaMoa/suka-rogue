@@ -1,6 +1,6 @@
 local Mob              = require "models.mob.Mob"
 local Item             = require "models.item.Item"
-local Dungeon          = require "models.dungeon.Dungeon"
+local World            = require "game.World"
 local DungeonService   = require "services.DungeonService"
 local CommandService   = require "services.CommandService"
 local MobAIService     = require "services.MobAIService"
@@ -13,7 +13,7 @@ local MobService = {}
 -- A spawn is valid iff the tile is in bounds, passable, and free of another
 -- occupant (including the player). Items may share the tile (drops do).
 MobService.can_spawn_at = function (x, y)
-    return DungeonService.is_free(x, y)
+    return World.is_free(x, y)
 end
 
 -- Public spawn interface.
@@ -39,7 +39,7 @@ MobService.spawn = function (type_name, x, y, room)
     mob.invoker.trigger = function () MobService.act(mob) end
     mob.invoker.reschedule(GameState.ticks + Mob.def_of(mob).stats.speed)
 
-    Dungeon.mobs[#Dungeon.mobs + 1] = mob
+    World.current().mobs[#World.current().mobs + 1] = mob
     return mob
 end
 
@@ -51,8 +51,9 @@ MobService.act = function (mob)
 end
 
 MobService.remove = function (mob)
-    for i, m in ipairs(Dungeon.mobs) do
-        if m == mob then table.remove(Dungeon.mobs, i); return end
+    local mobs = World.current().mobs
+    for i, m in ipairs(mobs) do
+        if m == mob then table.remove(mobs, i); return end
     end
 end
 

@@ -1,4 +1,5 @@
 local t = require "tests.support"
+local World = require "game.World"
 local Game = require "game.Game"
 local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
@@ -16,7 +17,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     local a_invoker = PlayerController.get_invoker()
     Player.health = 37
     GameState.ticks = 7
-    Dungeon.mobs[#Dungeon.mobs + 1] = { name = "A-SENTINEL", dead = false, x = -1, y = -1 }
+    World.current().mobs[#World.current().mobs + 1] = { name = "A-SENTINEL", dead = false, x = -1, y = -1 }
     MessageService.add("A only", "info")
 
     local b = Game.new()
@@ -30,7 +31,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     t.equal(#MessageService.recent(), 1) -- welcome only
     t.falsy(PlayerController.get_invoker() == a_invoker)
     t.truthy(PlayerController.get_invoker() == b_invoker)
-    for _, mob in ipairs(Dungeon.mobs) do
+    for _, mob in ipairs(World.current().mobs) do
         t.falsy(mob.name == "A-SENTINEL")
     end
 
@@ -49,7 +50,7 @@ t.test("two Game instances keep player, world, tick, scheduler, and message stat
     end
     t.truthy(has_a)
     local has_sentinel = false
-    for _, mob in ipairs(Dungeon.mobs) do
+    for _, mob in ipairs(World.current().mobs) do
         if mob.name == "A-SENTINEL" then has_sentinel = true end
     end
     t.truthy(has_sentinel)
@@ -65,7 +66,7 @@ t.test("re-initializing one Game clears its previous run without touching anothe
     a:activate()
     a:init()
     Player.health = 12
-    Dungeon.mobs[#Dungeon.mobs + 1] = { name = "OLD-A", dead = false, x = -1, y = -1 }
+    World.current().mobs[#World.current().mobs + 1] = { name = "OLD-A", dead = false, x = -1, y = -1 }
     MessageService.add("old A", "info")
 
     local b = Game.new()
@@ -77,7 +78,7 @@ t.test("re-initializing one Game clears its previous run without touching anothe
     a:init() -- activates A and resets only A
     t.equal(Player.health, 100)
     t.equal(GameState.ticks, 0)
-    for _, mob in ipairs(Dungeon.mobs) do
+    for _, mob in ipairs(World.current().mobs) do
         t.falsy(mob.name == "OLD-A")
     end
     t.falsy(#MessageService.recent() > 1)
@@ -125,4 +126,16 @@ t.test("the same Game seed produces the same generated world", function ()
     t.equal(ar, br)
     t.equal(ap, bp)
     t.equal(af, bf)
+end)
+
+t.test("Dungeon stores only map data; World owns actors and ground items", function ()
+    local game = Game.new(310)
+    game:init()
+    t.equal(Dungeon.mobs, nil)
+    t.equal(Dungeon.items, nil)
+    t.equal(Dungeon.npcs, nil)
+    t.equal(Dungeon.constructs, nil)
+    t.truthy(game.world.mobs)
+    t.truthy(game.world.items)
+    t.truthy(game.world.dungeon.rooms)
 end)

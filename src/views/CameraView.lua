@@ -1,8 +1,7 @@
 local CameraService  = require "services.CameraService"
 local PlayerModule = require "modules.player"
 local PlayerController = PlayerModule.Controller
-local Dungeon        = require "models.dungeon.Dungeon"
-local DungeonService = require "services.DungeonService"
+local World          = require "game.World"
 local Palette        = require "models.dungeon.Palette"
 local VisionService  = require "services.VisionService"
 local CombatService  = require "services.CombatService"
@@ -49,7 +48,7 @@ CameraView.render = function ()
 
                 -- Visible tiles show everything; discovered tiles show only
                 -- constructs (draft), dimmed.
-                local occupant  = DungeonService.occupant_at(wx, wy)
+                local occupant  = World.occupant_at(wx, wy)
                 local construct = occupant and occupant.def and occupant.def.kind == "construct"
                 if occupant and (state == "visible" or construct) then
                     local due_next = next_tick
@@ -65,7 +64,7 @@ CameraView.render = function ()
                     -- Items are visible only on currently visible tiles.
                     local item = nil
                     if state == "visible" then
-                        for _, g in ipairs(Dungeon.items) do
+                        for _, g in ipairs(World.current().items) do
                             if g.x == wx and g.y == wy then item = g; break end
                         end
                     end

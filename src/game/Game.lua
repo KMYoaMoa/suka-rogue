@@ -36,7 +36,6 @@ function Game.new(seed)
         seed            = run_seed,
         rng             = RNG.new(run_seed),
         world           = world,
-        dungeon         = world.dungeon, -- temporary proxy target for legacy services
         player          = Player.new_state(),
         state           = state,
         scheduler       = Scheduler.new(clock),
@@ -58,6 +57,7 @@ function Game:reset()
     self.scheduler:clear()
     self.rng = RNG.new(self.seed)
     DungeonService.clear()
+    World.clear()
     PlayerController.reset()
 
     self.state.ticks = 0

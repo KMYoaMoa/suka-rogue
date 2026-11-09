@@ -1,4 +1,5 @@
 local t = require "tests.support"
+local World = require "game.World"
 local GameApplication = require "GameApplication"
 local Player = require "models.Player"
 local Dungeon = require "models.dungeon.Dungeon"
@@ -14,15 +15,15 @@ t.test("player and blocking actors cannot share a passable tile", function ()
     t.with_clean_world(function ()
         local room = t.make_room(10, 10, 7, 7)
         Player.x, Player.y = 13, 13
-        t.falsy(DungeonService.is_free(Player.x, Player.y))
-        t.truthy(DungeonService.occupant_at(Player.x, Player.y) == Player)
+        t.falsy(World.is_free(Player.x, Player.y))
+        t.truthy(World.occupant_at(Player.x, Player.y) == Player)
         t.falsy(MobService.spawn("rat", Player.x, Player.y, room))
         t.falsy(NpcService.spawn("shopkeeper", Player.x, Player.y, room))
         t.falsy(ConstructService.spawn("chest", Player.x, Player.y, room))
 
         local mob = MobService.spawn("rat", 11, 11, room)
         t.truthy(mob)
-        t.falsy(DungeonService.is_free(mob.x, mob.y))
+        t.falsy(World.is_free(mob.x, mob.y))
     end)
 end)
 
