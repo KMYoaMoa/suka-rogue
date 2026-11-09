@@ -7,11 +7,18 @@ local VisionService      = require "services.VisionService"
 local NpcService         = require "services.NpcService"
 local PlayerStatsService = require "services.PlayerStatsService"
 local MessageService     = require "services.MessageService"
+local Context            = require "game.Context"
 
 local MobAIService = {}
 local MobCommands  = {}
 
 local DIRS4 = { {1,0}, {-1,0}, {0,1}, {0,-1} }
+
+local function random(...)
+    local game = Context.current
+    if game and game.rng then return game.rng:random(...) end
+    return math.random(...)
+end
 
 local function key(x, y) return x .. ":" .. y end
 
@@ -189,7 +196,7 @@ local function wander_act(mob, territory_only)
     end
 
     if ai.steps_left <= 0 then
-        ai.dir = DIRS4[math.random(#DIRS4)]
+        ai.dir = DIRS4[random(#DIRS4)]
         ai.steps_left = 3
     end
 

@@ -8,7 +8,8 @@ local MAX_BIOME_SIZE = 3
 
 -- Assign a biome to every reachable room, growing clusters over `connected`.
 -- Generation-time only; the caller rasterizes the result into the tile grid.
-function Biome:assign(map)
+function Biome:assign(map, rng)
+    local random = rng and function (...) return rng:random(...) end or math.random
     local assigned = {}
     local active = map.cell_list
 
@@ -31,7 +32,7 @@ function Biome:assign(map)
             seed.biome = type
 
             -- grow while the cluster is under the rolled size and has candidates
-            local size = math.random(MIN_BIOME_SIZE, MAX_BIOME_SIZE)
+            local size = random(MIN_BIOME_SIZE, MAX_BIOME_SIZE)
             while #cluster < size do
                 local seen, candidates = {}, {}
                 for _, m in ipairs(cluster) do
@@ -40,7 +41,7 @@ function Biome:assign(map)
                     end
                 end
                 if #candidates == 0 then break end   -- cluster ends smaller than rolled
-                local pick = candidates[math.random(#candidates)]
+                local pick = candidates[random(#candidates)]
                 cluster[#cluster+1] = pick
                 assigned[pick] = true
                 pick.biome = type

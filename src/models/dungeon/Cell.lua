@@ -31,27 +31,28 @@ function Cell:is_leaf()
 	return self.left_c == nil
 end
 
-function Cell:divide(min_dimension)
+function Cell:divide(min_dimension, rng)
+    local random = rng and function (...) return rng:random(...) end or math.random
     if self.x_size < min_dimension or self.y_size < min_dimension then
         return false
     end
     if not self:is_leaf() then
-        if math.random(0, 100) < 50 then
-            return self.left_c:divide(min_dimension)
+        if random(0, 100) < 50 then
+            return self.left_c:divide(min_dimension, rng)
         else
-            return self.right_c:divide(min_dimension)
+            return self.right_c:divide(min_dimension, rng)
         end
     end
     if self.x_size > self.y_size then
         local lb = math.floor(self.x_size * 0.3)
         local hb = math.floor(self.x_size * 0.7)
-        local mid = math.random(lb, hb)
+        local mid = random(lb, hb)
         self.left_c = Cell:new(self.x_pos, self.y_pos, mid, self.y_size)
         self.right_c = Cell:new(self.x_pos + mid, self.y_pos, self.x_size - mid, self.y_size)
     else
         local lb = math.floor(self.y_size * 0.3)
         local hb = math.floor(self.y_size * 0.7)
-        local mid = math.random(lb, hb)
+        local mid = random(lb, hb)
         self.left_c = Cell:new(self.x_pos, self.y_pos, self.x_size, mid)
         self.right_c = Cell:new(self.x_pos, self.y_pos + mid, self.x_size, self.y_size - mid)
     end

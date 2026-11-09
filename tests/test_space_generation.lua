@@ -7,6 +7,7 @@ local MobService = require "services.MobService"
 local NpcService = require "services.NpcService"
 local ConstructService = require "services.ConstructService"
 local DungeonGenerate = require "services.DungeonGenerate"
+local RNG = require "core.rng"
 local conf = require "conf"
 
 t.test("player and blocking actors cannot share a passable tile", function ()
@@ -29,8 +30,7 @@ t.test("out-of-bounds terrain is not passable and floor never touches map edge",
     t.equal(DungeonService.is_passable(-1, 0), false)
     t.equal(DungeonService.is_passable(conf.SIZE_X, 0), false)
     for seed = 201, 240 do
-        math.randomseed(seed)
-        local map = DungeonGenerate.create(20, 3)
+        local map = DungeonGenerate.create(20, 3, RNG.new(seed))
         t.truthy(#map.cell_list > 0)
         t.truthy(DungeonService.getSpawnRoom())
         for x = 0, conf.SIZE_X - 1 do

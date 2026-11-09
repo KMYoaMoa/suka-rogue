@@ -41,10 +41,11 @@ local defs = {
 }
 
 -- Weighted roll. With weights {1,1,8}: 1 -> shop, 2 -> storeroom, 3..10 -> ruins.
-RoomType.pick = function ()
+RoomType.pick = function (rng)
+    local random = rng and function (...) return rng:random(...) end or math.random
     local total = 0
     for _, key in ipairs(ORDER) do total = total + defs[key].weight end
-    local roll = math.random(total)
+    local roll = random(total)
     for _, key in ipairs(ORDER) do
         roll = roll - defs[key].weight
         if roll <= 0 then return key end
@@ -54,9 +55,9 @@ end
 
 -- Assign a type to every room in the generated map. Mirrors Biome:assign:
 -- generation-time, per-room data on the Cell, no tile writes, no content.
-RoomType.assign = function (map)
+RoomType.assign = function (map, rng)
     for _, room in ipairs(map.cell_list) do
-        room.room_type = RoomType.pick()
+        room.room_type = RoomType.pick(rng)
     end
 end
 

@@ -1,5 +1,7 @@
 local Context           = require "game.Context"
 local World             = require "game.World"
+local Scheduler         = require "core.scheduler"
+local RNG               = require "core.rng"
 local Player            = require "models.Player"
 local GameState         = require "models.GameState"
 local CommandService    = require "services.CommandService"
@@ -17,14 +19,26 @@ local VisionService     = require "services.VisionService"
 local Game = {}
 Game.__index = Game
 
-function Game.new()
+function Game.new(seed)
     local world = World.new()
+    local state = GameState.new_state()
+    local clock = {
+        get_tick = function () return state.ticks end,
+        set_tick = function (_, tick) state.ticks = tick end,
+        is_stopped = function ()
+            return state.state == "waiting" or state.state == "dead"
+        end,
+        is_dead = function () return state.state == "dead" end,
+    }
+    local run_seed = seed or os.time()
     return setmetatable({
+        seed            = run_seed,
+        rng             = RNG.new(run_seed),
         world           = world,
         dungeon         = world.dungeon, -- temporary proxy target for legacy services
         player          = Player.new_state(),
-        state           = GameState.new_state(),
-        scheduler       = CommandService.new_state(),
+        state           = state,
+        scheduler       = Scheduler.new(clock),
         messages        = MessageService.new_state(),
         combat          = CombatService.new_state(),
         player_invoker  = nil,
@@ -41,7 +55,8 @@ end
 
 function Game:reset()
     self:activate()
-    CommandService.reset()
+    self.scheduler:clear()
+    self.rng = RNG.new(self.seed)
     DungeonService.clear()
     PlayerService.reset()
 
@@ -56,7 +71,7 @@ end
 
 function Game:init()
     self:reset()
-    DungeonGenerate.create(20, 3)
+    DungeonGenerate.create(20, 3, self.rng)
     PlayerService.init()
     self.player_invoker = PlayerService.invoker
 

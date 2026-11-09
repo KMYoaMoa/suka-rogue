@@ -1,90 +1,44 @@
-local GameState = require "models.GameState"
--- Invoker: a trigger plus a reschedule helper. Invokers are owned by the
--- service that drives an actor (PlayerService, MobService), not by the actor
--- model itself.
+-- Compatibility adapter for the Phase 3 active-Game services. The actual
+-- scheduler lives in core/scheduler and has no game-domain dependencies.
+local Scheduler = require "core.scheduler"
+
+local default_clock = {
+    get_tick = function () return 0 end,
+    set_tick = function () end,
+    is_stopped = function () return true end,
+    is_dead = function () return false end,
+}
+
+local active = Scheduler.new(default_clock)
+
 local CommandService = {}
 
-local schedule = {}   -- schedule[ticks] = list of invokers due at that tick
-local queue    = {}   -- the global command queue
-
--- Per-Game scheduler state. Invokers capture the active tables when they are
--- created; switching Games only changes which tables the module functions use.
-function CommandService.new_state()
-    return {
-        schedule = {},
-        queue = {},
-    }
+function CommandService.new_state(clock)
+    return Scheduler.new(clock)
 end
 
-function CommandService.activate(state)
-    schedule = state.schedule
-    queue = state.queue
+function CommandService.activate(scheduler)
+    active = scheduler
 end
 
 function CommandService.new_invoker(name)
-    local invoker = {name = name}
-    local invoker_schedule = schedule
-    local invoker_queue = queue
-    invoker.trigger = nil -- constraint: instance should implement
-    invoker.append_command = function (obj)
-        invoker_queue[#invoker_queue + 1] = obj
-    end
-    invoker.reschedule = function (at)
-        invoker_schedule[at] = invoker_schedule[at] or {}
-        invoker_schedule[at][#invoker_schedule[at] + 1] = invoker
-    end
-    return invoker
+    return active:new_invoker(name)
 end
 
-local function drain_queue()
-    while #queue > 0 do
-        if GameState.state == "dead" then
-            for i = #queue, 1, -1 do queue[i] = nil end
-            return
-        end
-        local cmd = table.remove(queue, 1)
-        cmd.execute()
-    end
+function CommandService.process()
+    active:process()
 end
 
-CommandService.process = function ()
-    while GameState.state ~= "waiting" and GameState.state ~= "dead" do
-        drain_queue()                                -- commands from the last
-        local slot = schedule[GameState.ticks] or {}
-        schedule[GameState.ticks] = nil
-        for _, invoker in ipairs(slot) do
-            if GameState.state == "dead" then return end
-            invoker.trigger()
-            drain_queue()
-        end
-        if GameState.state == "dead" then return end
-        GameState.ticks = GameState.ticks + 1                            -- next integer tick
-    end
+function CommandService.reset()
+    active:clear()
 end
 
-CommandService.reset = function ()
-    for key in pairs(schedule) do schedule[key] = nil end
-    for i = #queue, 1, -1 do queue[i] = nil end
+function CommandService.next_tick()
+    return active:next_tick()
 end
 
--- First tick at or after the current clock that has any invoker. In normal
--- play this is the player's next turn (the player is scheduled every tick);
--- after init it is 1, even though GameState.ticks is still 0.
-CommandService.next_tick = function ()
-    local limit = GameState.ticks + 1000
-    for t = GameState.ticks, limit do
-        local slot = schedule[t]
-        if slot and #slot > 0 then return t end
-    end
-    return nil
-end
-
-CommandService.is_scheduled = function (invoker, tick)
-    if not tick then return false end
-    for _, scheduled in ipairs(schedule[tick] or {}) do
-        if scheduled == invoker then return true end
-    end
-    return false
+function CommandService.is_scheduled(invoker, tick)
+    return active:is_scheduled(invoker, tick)
 end
 
 return CommandService

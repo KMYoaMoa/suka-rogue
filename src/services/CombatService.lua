@@ -6,6 +6,7 @@ local DungeonService = require "services.DungeonService"
 local MobService     = require "services.MobService"
 local NpcService     = require "services.NpcService"
 local MessageService = require "services.MessageService"
+local Context        = require "game.Context"
 
 local CombatService = {}
 local CombatCommands = {}
@@ -190,7 +191,9 @@ CombatCommands.attack = function ()
             local weapon = Player.equipped.ranged
             local accuracy = (weapon and weapon.def.stats.accuracy) or 1
             accuracy = math.max(0, math.min(1, accuracy))
-            if math.random() < accuracy then
+            local game = Context.current
+            local roll = (game and game.rng) and game.rng:random() or math.random()
+            if roll < accuracy then
                 local damage = math.max(1, CombatService.attack_power()
                                          - CombatService.defense_of(target))
                 CombatService.hit(target, damage)

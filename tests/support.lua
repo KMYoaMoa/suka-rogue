@@ -34,11 +34,10 @@ function support.with_clean_world(fn)
     local DungeonGenerate = require "services.DungeonGenerate"
     local PlayerService = require "services.PlayerService"
 
-    local game = Game.new()
+    local game = Game.new(93017)
     game:activate()
     game:reset()
-    math.randomseed(93017)
-    DungeonGenerate.create(20, 3)
+    DungeonGenerate.create(20, 3, game.rng)
     PlayerService.init()
 
     local ok, err = xpcall(fn, debug.traceback)

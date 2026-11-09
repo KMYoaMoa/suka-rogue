@@ -5,6 +5,13 @@ local InventoryService = require "services.InventoryService"
 local MobService       = require "services.MobService"
 local NpcService       = require "services.NpcService"
 local ConstructService = require "services.ConstructService"
+local Context          = require "game.Context"
+
+local function random(...)
+    local game = Context.current
+    if game and game.rng then return game.rng:random(...) end
+    return math.random(...)
+end
 
 local RoomService = {}
 
@@ -23,8 +30,8 @@ end
 -- A tiny or already-full room must never hang generation.
 RoomService.random_tile = function (room, avoid_entrance)
     for _ = 1, MAX_TRIES do
-        local x = math.random(room.x_pos, room:x_pos_end())
-        local y = math.random(room.y_pos, room:y_pos_end())
+        local x = random(room.x_pos, room:x_pos_end())
+        local y = random(room.y_pos, room:y_pos_end())
         if RoomService.tile_available(x, y, avoid_entrance) then return x, y end
     end
     return nil
@@ -35,7 +42,7 @@ local function populate_room(room, def)
         for _ = 1, def.items do
             local x, y = RoomService.random_tile(room)
             if not x then break end                       -- room is full; stop
-            local item_type = def.item_pool[math.random(#def.item_pool)]
+            local item_type = def.item_pool[random(#def.item_pool)]
             InventoryService.place_item(item_type, x, y)
         end
     end
@@ -43,7 +50,7 @@ local function populate_room(room, def)
         for _ = 1, def.mobs do
             local x, y = RoomService.random_tile(room)
             if not x then break end
-            local mob_type = def.mob_pool[math.random(#def.mob_pool)]
+            local mob_type = def.mob_pool[random(#def.mob_pool)]
             MobService.spawn(mob_type, x, y, room)
         end
     end
@@ -51,7 +58,7 @@ local function populate_room(room, def)
         for _ = 1, def.npcs do
             local x, y = RoomService.random_tile(room, true)   -- keep entrances open
             if not x then break end
-            local npc_type = def.npc_pool[math.random(#def.npc_pool)]
+            local npc_type = def.npc_pool[random(#def.npc_pool)]
             NpcService.spawn(npc_type, x, y, room)
         end
     end
@@ -59,7 +66,7 @@ local function populate_room(room, def)
         for _ = 1, def.constructs do
             local x, y = RoomService.random_tile(room, true)   -- keep entrances open
             if not x then break end
-            local c_type = def.construct_pool[math.random(#def.construct_pool)]
+            local c_type = def.construct_pool[random(#def.construct_pool)]
             ConstructService.spawn(c_type, x, y, room)
         end
     end

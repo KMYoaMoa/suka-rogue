@@ -6,6 +6,8 @@ local GameState = require "models.GameState"
 local MessageService = require "services.MessageService"
 local PlayerService = require "services.PlayerService"
 local CommandService = require "services.CommandService"
+local DungeonService = require "services.DungeonService"
+local conf = require "conf"
 
 t.test("two Game instances keep player, world, tick, scheduler, and message state separate", function ()
     local a = Game.new()
@@ -104,4 +106,23 @@ t.test("scheduler queries follow the active Game", function ()
 
     a:activate()
     t.equal(CommandService.next_tick(), 1)
+end)
+
+t.test("the same Game seed produces the same generated world", function ()
+    local function snapshot(seed)
+        local game = Game.new(seed)
+        game:init()
+        local floors = 0
+        for x = 0, conf.SIZE_X - 1 do
+            for y = 0, conf.SIZE_Y - 1 do
+                if DungeonService.getTile(x, y).type == "floor" then floors = floors + 1 end
+            end
+        end
+        return #game.world.dungeon.rooms, #game.world.dungeon.paths, floors
+    end
+    local ar, ap, af = snapshot(777)
+    local br, bp, bf = snapshot(777)
+    t.equal(ar, br)
+    t.equal(ap, bp)
+    t.equal(af, bf)
 end)

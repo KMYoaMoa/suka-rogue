@@ -7,6 +7,7 @@ local Dungeon = require "models.dungeon.Dungeon"
 local DungeonService = require "services.DungeonService"
 local Tile = require "models.dungeon.Tile"
 local conf = require "conf"
+local RNG = require "core.rng"
 
 -- MapFactory owns the dungeon generation logic. The Map table itself only
 -- holds the generated data and knows how to display it.
@@ -17,13 +18,13 @@ local DungeonFactory = {}
 -- forever. Allow a generous number of attempts per requested room and bail out.
 local MAX_ATTEMPTS_PER_ROOM = 50
 
-local function divide(map)
+local function divide(map, rng)
     local room_cnt = 1
     local attempts = 0
     local max_attempts = map.num_rooms * MAX_ATTEMPTS_PER_ROOM
     while room_cnt < map.num_rooms and attempts < max_attempts do
         attempts = attempts + 1
-        if map.root:divide(map.min_dimension) then
+        if map.root:divide(map.min_dimension, rng) then
             room_cnt = room_cnt + 1
         end
     end
@@ -58,10 +59,10 @@ local function find_neighbours(map)
 	end
 end
 
-local function shrink(map)
+local function shrink(map, rng)
 	for _, i in ipairs(map.cell_list) do
-	    local x_factor = math.random(6, 9)
-		local y_factor = math.random(6, 9)
+	    local x_factor = rng:random(6, 9)
+		local y_factor = rng:random(6, 9)
         -- Never grow a tiny leaf past its current size: that would make the
         -- centering offset negative and push the room outside the grid.
 		local x_size_new = math.min(i.x_size,
@@ -77,13 +78,13 @@ local function shrink(map)
 	end
 end
 
-local function add_path(map)
+local function add_path(map, rng)
     for _, i in ipairs(map.cell_list) do
 		for _, j in ipairs(i.h_neighbours) do
     		local overlap_start = math.max(i.y_pos, j.y_pos)
             local overlap_end = math.min(i:y_pos_end(), j:y_pos_end())
             if overlap_start <= overlap_end then
-                local hall_y_pos = math.random(overlap_start, overlap_end)
+                local hall_y_pos = rng:random(overlap_start, overlap_end)
                 local p = Path:new(i:x_pos_end() + 1, hall_y_pos, j.x_pos - i:x_pos_end() - 1, 1)
                 p.a, p.b = i, j
                 map.path_list[#map.path_list+1] = p
@@ -95,7 +96,7 @@ local function add_path(map)
     		local overlap_start = math.max(i.x_pos, j.x_pos)
     		local overlap_end = math.min(i:x_pos_end(), j:x_pos_end())
             if overlap_start <= overlap_end then
-                local hall_x_pos = math.random(overlap_start, overlap_end)
+                local hall_x_pos = rng:random(overlap_start, overlap_end)
                 local p = Path:new(hall_x_pos, i:y_pos_end() + 1, 1, j.y_pos - i:y_pos_end() - 1)
                 p.a, p.b = i, j
                 map.path_list[#map.path_list+1] = p
@@ -213,12 +214,12 @@ end
 
 -- Per-room base darkness: lower = brighter = farther vision.
 -- Shops are deliberately fully lit (darkness 0 -> no vision decay).
-local function assign_darkness(map)
+local function assign_darkness(map, rng)
     for _, room in ipairs(map.cell_list) do
         if room.room_type == "shop" then
             room.darkness = 0
         else
-            room.darkness = math.random(conf.DARKNESS_MIN, conf.DARKNESS_MAX)
+            room.darkness = rng:random(conf.DARKNESS_MIN, conf.DARKNESS_MAX)
         end
     end
 end
@@ -226,19 +227,20 @@ end
 -- Generate a dungeon map.
 --   num_rooms:       number of rooms/cells to partition into
 --   min_dimension:   minimal cell/room dimension
-function DungeonFactory.create(num_rooms, min_dimension)
+function DungeonFactory.create(num_rooms, min_dimension, rng)
+    rng = rng or RNG.new()
     local root = Cell:new(1, 1, conf.SIZE_X - 2, conf.SIZE_Y - 2)
     local map = Map:new(root, num_rooms, min_dimension)
-    divide(map)
+    divide(map, rng)
     construct_list(map)
     find_neighbours(map)
-    shrink(map)
-    add_path(map)
+    shrink(map, rng)
+    add_path(map, rng)
     keep_largest_component(map)
     drop_stub_paths(map)
-    Biome:assign(map)
-    RoomType.assign(map)
-    assign_darkness(map)
+    Biome:assign(map, rng)
+    RoomType.assign(map, rng)
+    assign_darkness(map, rng)
     DungeonService.clear()
     rasterize(map)
     carve(map)

@@ -11,8 +11,7 @@ local Item = require "models.item.Item"
 local Game = require "game.Game"
 
 local function init_with_fixed_seed(seed)
-    math.randomseed(seed)
-    GameApplication.init(Game.new())
+    GameApplication.init(Game.new(seed))
 end
 
 t.test("init waits without consuming a tick; one movement input consumes one tick", function ()

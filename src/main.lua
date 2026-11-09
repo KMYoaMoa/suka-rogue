@@ -7,8 +7,6 @@ local Game             = require "game.Game"
 local conf = require "conf"
 
 function love.load()
-    math.randomseed(os.time())
-
     love.window.setTitle("Love RL")
     love.window.setMode(conf.SCREEN_WIDTH, conf.SCREEN_HEIGHT)
     love.keyboard.setKeyRepeat(true)
